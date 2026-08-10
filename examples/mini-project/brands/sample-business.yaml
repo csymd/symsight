@@ -1,0 +1,53 @@
+# Copy of examples/brands/sample-business.yaml so the mini-project is self-contained.
+# Edit freely; this is not a real firm.
+
+id: sample-business
+display_name: Sample Business Desk
+voice: |
+  Clear, measured, and practical. Write for busy professionals who want
+  context without hype. Prefer plain language over jargon; when a term is
+  necessary, define it once. Educational only—never personalized financial,
+  legal, or tax advice. Avoid performance promises and sensational headlines.
+full_name: Sample Business Desk
+short_name: Desk
+forbidden:
+  - guaranteed returns
+  - risk-free
+  - get rich
+disclaimer: |
+  This content is for general informational and educational purposes only.
+  It is not investment, tax, legal, or other professional advice, and it is
+  not an offer to buy or sell any security. Verify facts independently and
+  consult qualified professionals for decisions about your situation.
+types:
+  market-brief:
+    description: Short educational brief on a market or business topic
+    default_use_search: false
+    user_template: |
+      Today is {today}. Write a {min_words}–{max_words} word educational brief on: {topic}.
+      Audience: general business readers. Explain trade-offs; do not give personalized advice.
+      Do not invent precise prices, returns, or filings. If numbers are uncertain, say so.
+      Do not include a disclaimer block (we append one). Byline spirit: {full_name}.
+      Respond with ONLY the TITLE / --- / body format.
+  earnings-explainer:
+    description: Plain-language explainer of how to read a business update
+    default_use_search: true
+    user_template: |
+      Today is {today}. Write a {min_words}–{max_words} word explainer related to: {topic}.
+      Focus on what a careful reader should look for (drivers, risks, open questions).
+      Prefer accurate framing; if public data is thin, say so—do not invent figures.
+      Do not include a disclaimer block (we append one). Byline spirit: {full_name}.
+      Respond with ONLY the TITLE / --- / body format.
+  social-tip:
+    description: Short social post with one practical business idea
+    default_use_search: false
+    user_template: |
+      Today is {today}. Write a single social media post (max {max_chars} characters)
+      about: {topic}. Voice of {full_name}. Educational, no hype, at most 2 hashtags.
+      No title line—output ONLY the post text, nothing else.
+formats:
+  article:
+    default_min_words: 200
+    default_max_words: 450
+  social:
+    default_max_chars: 220

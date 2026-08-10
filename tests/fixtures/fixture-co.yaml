@@ -1,0 +1,29 @@
+id: fixture-co
+display_name: Fixture Co
+voice: |
+  Neutral test voice. Plain English.
+full_name: Fixture Co
+short_name: Fixture
+forbidden:
+  - fixturecorp
+  - fixture-corp
+disclaimer: |
+  Fixture disclaimer for tests only.
+types:
+  general:
+    description: General article
+    default_use_search: false
+    user_template: |
+      Today is {today}. Write a {min_words}–{max_words} word piece on: {topic}.
+      Byline spirit: {full_name}. Respond with ONLY the TITLE / --- / body format.
+  social-tip:
+    description: Social tip
+    default_use_search: false
+    user_template: |
+      Write a social post (max {max_chars} chars) about: {topic}. Output ONLY the post.
+formats:
+  article:
+    default_min_words: 50
+    default_max_words: 100
+  social:
+    default_max_chars: 200

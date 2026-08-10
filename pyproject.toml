@@ -1,0 +1,119 @@
+[project]
+name = "symsight"
+version = "0.1.0"
+description = "Insight generator: articles and social posts with CLI and TUI"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [
+    { name = "PalEm Dynamics LLC" },
+]
+keywords = [
+    "content-generation",
+    "cli",
+    "tui",
+    "brand",
+    "writing",
+    "xai",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "openai>=1.40.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "pyyaml>=6.0",
+    "textual>=1.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "pytest-mock>=3.10",
+]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "pytest-mock>=3.10",
+]
+
+[project.scripts]
+symsight = "symsight.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/bitterbeta/symsight"
+Repository = "https://github.com/bitterbeta/symsight"
+Issues = "https://github.com/bitterbeta/symsight/issues"
+Changelog = "https://github.com/bitterbeta/symsight/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/symsight"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/symsight",
+    "config",
+    "examples",
+    "scripts",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "DEVELOPMENT.md",
+    "pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+markers = [
+    "unit",
+    "integration",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "dist",
+    "build",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+ignore = ["E402"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+ignore_missing_imports = true
+mypy_path = "src"

@@ -1,0 +1,47 @@
+# Generic example brand — replace with your own brand file(s).
+# Copy this file and edit voice, name, types, and disclaimer.
+# Never commit real client brands if they are private.
+
+id: example-writer
+display_name: Independent Writer
+voice: |
+  Clear, direct, and curious. Prefer plain language. Explain technical terms
+  briefly when they first appear. Educational tone; no hype.
+full_name: Independent Writer
+short_name: Writer
+forbidden: []
+disclaimer: |
+  This content is for general informational and educational purposes only.
+  It is not personalized professional advice. Verify facts independently
+  before acting on them.
+types:
+  general:
+    description: Free-topic article in brand voice
+    default_use_search: false
+    user_template: |
+      Today is {today}. Write a {min_words}–{max_words} word piece on: {topic}.
+      Practical and trustworthy. Do not include a disclaimer block (we append one).
+      Byline spirit: {full_name}.
+      Respond with ONLY the TITLE / --- / body format.
+  news:
+    description: Short summary of recent developments on a topic
+    default_use_search: true
+    user_template: |
+      Today is {today}. Write a {min_words}–{max_words} word neutral summary of
+      recent developments related to: {topic}. Prefer accurate information;
+      if data is thin, say so—do not invent figures.
+      Do not include a disclaimer block (we append one). Byline spirit: {full_name}.
+      Respond with ONLY the TITLE / --- / body format.
+  social-tip:
+    description: Short social post on a tip or idea
+    default_use_search: false
+    user_template: |
+      Today is {today}. Write a single social media post (max {max_chars} characters)
+      about: {topic}. Voice of {full_name}. No hashtag spam (at most 2 hashtags).
+      No title line—output ONLY the post text, nothing else.
+formats:
+  article:
+    default_min_words: 200
+    default_max_words: 500
+  social:
+    default_max_chars: 200

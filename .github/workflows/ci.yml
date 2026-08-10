@@ -1,0 +1,82 @@
+# Day-to-day CI for symsight (Python / uv).
+#
+# Branch model (same as SymWorx):
+#   develop → stage → release/vX.Y.Z → main → manual tag vX.Y.Z
+#
+# Runs on develop and main only. Stage is FF-promoted from develop and skips
+# this workflow (pass-through promotion; re-enable if stage becomes a real
+# integration branch).
+
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Sync dev tools
+        run: uv sync --extra dev
+
+      - name: Ruff check
+        run: uv run ruff check src tests
+
+  test:
+    name: Pytest (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Sync project + test deps
+        run: uv sync --extra test --python ${{ matrix.python-version }}
+
+      - name: Run tests
+        run: uv run --python ${{ matrix.python-version }} pytest
+
+  # Aggregate gate for branch protection / required checks
+  ci-ready:
+    name: CI checks passed
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: always()
+    steps:
+      - name: Require all CI jobs
+        run: |
+          set -euo pipefail
+          echo "lint: ${{ needs.lint.result }}"
+          echo "test: ${{ needs.test.result }}"
+          test "${{ needs.lint.result }}" = "success"
+          test "${{ needs.test.result }}" = "success"
+          echo "All CI jobs passed."

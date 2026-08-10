@@ -1,0 +1,10 @@
+# Self-contained example workspace. Paths are relative to this directory.
+# Copy this folder, edit brands/, and generate with:
+#   uv run symsight --config-root path/to/this/dir generate --topic "…"
+
+active_brand = "sample-business"
+brands_dir = "./brands"
+drafts_dir = "./drafts"
+final_dir = "./final"
+model = "grok-4.5"
+base_url = "https://api.x.ai/v1"

@@ -1,0 +1,8 @@
+# Copy to .symsight.toml in the project root (or ~/.config/symsight/config.toml).
+
+active_brand = "example-writer"
+brands_dir = "./config/brands"
+drafts_dir = "./content/drafts"
+final_dir = "./content/final"
+model = "grok-4.5"
+base_url = "https://api.x.ai/v1"

@@ -147,8 +147,24 @@ activemq-data/
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Local symsight config & secrets
 .env
+.symsight.toml
+# Ship the self-contained example workspace config
+!examples/mini-project/.symsight.toml
+
+# Generated content (keep directory structure via .gitkeep)
+content/drafts/*
+!content/drafts/.gitkeep
+content/final/*
+!content/final/.gitkeep
+# Example mini-project uses the same layout
+examples/mini-project/drafts/*
+!examples/mini-project/drafts/.gitkeep
+examples/mini-project/final/*
+!examples/mini-project/final/.gitkeep
+
+# Environments
 .envrc
 .venv
 env/
