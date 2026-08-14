@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Insight generator: articles and social posts with CLI and TUI"
 readme = "README.md"
 license = "Apache-2.0"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "NOTICE.md"]
 requires-python = ">=3.11"
 authors = [
     { name = "PalEm Dynamics LLC" },
@@ -75,6 +75,7 @@ include = [
     "tests",
     "README.md",
     "LICENSE",
+    "NOTICE.md",
     "CHANGELOG.md",
     "SECURITY.md",
     "CODE_OF_CONDUCT.md",

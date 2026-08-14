@@ -112,7 +112,9 @@ Details: [DEVELOPMENT.md](DEVELOPMENT.md) · [CHANGELOG.md](CHANGELOG.md) · [CO
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
+
+Copyright (c) 2026, PalEm Dynamics LLC.
 
 ## Notes
 

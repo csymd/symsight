@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Root `SECURITY.md` and `CODE_OF_CONDUCT.md`
 - `examples/` sample business brand, mini-project workspace, and static draft shapes
+- `NOTICE.md` with PalEm Dynamics LLC attribution
+
+### Changed
+
+- File headers and `LICENSE` appendix use `Copyright (c) 2026, PalEm Dynamics LLC`
 
 ### Fixed
 

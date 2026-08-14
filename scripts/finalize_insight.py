@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 PalEm Dynamics LLC
+# Copyright (c) 2026, PalEm Dynamics LLC
 # Licensed under the Apache License, Version 2.0.
 """Thin wrapper: finalize a draft."""
 

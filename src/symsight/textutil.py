@@ -1,4 +1,4 @@
-# Copyright (c) 2026 PalEm Dynamics LLC
+# Copyright (c) 2026, PalEm Dynamics LLC
 # Licensed under the Apache License, Version 2.0.
 """Text helpers: counting, slugify, title/body extraction from model output."""
 
