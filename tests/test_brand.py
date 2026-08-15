@@ -41,6 +41,19 @@ def test_forbidden_hits() -> None:
     assert not check_text("Welcome to Fixture Co", brand)
 
 
+def test_scan_skips_target_and_dist(tmp_path: Path) -> None:
+    from symsight.brandcheck import iter_scan_files
+
+    (tmp_path / "target").mkdir()
+    (tmp_path / "dist").mkdir()
+    (tmp_path / "ok").mkdir()
+    (tmp_path / "target" / "hidden.md").write_text("fixturecorp", encoding="utf-8")
+    (tmp_path / "dist" / "hidden.md").write_text("fixturecorp", encoding="utf-8")
+    (tmp_path / "ok" / "visible.md").write_text("ok", encoding="utf-8")
+    names = {p.name for p in iter_scan_files([tmp_path])}
+    assert names == {"visible.md"}
+
+
 def test_prompts_use_brand_name_not_hardcoded() -> None:
     brand = load_brand_file(FIXTURE)
     req = GenerateRequest(brand=brand, type_id="general", topic="testing")

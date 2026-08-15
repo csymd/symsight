@@ -230,7 +230,53 @@ impl FrontValue {
             Self::String(s) => s.clone(),
         }
     }
+
+    /// Python truthiness for `fm.get(key) or fallback`.
+    pub fn is_python_truthy(&self) -> bool {
+        match self {
+            Self::Null => false,
+            Self::Bool(b) => *b,
+            Self::Int(0) => false,
+            Self::Int(_) => true,
+            Self::Float(n) => *n != 0.0,
+            Self::String(s) => !s.is_empty(),
+        }
+    }
+
+    /// `_yq` from `draft_io.py`.
+    pub fn to_yq(&self) -> String {
+        match self {
+            Self::Null => "null".to_string(),
+            Self::Bool(true) => "true".to_string(),
+            Self::Bool(false) => "false".to_string(),
+            Self::Int(n) => n.to_string(),
+            Self::Float(n) => n.to_string(),
+            Self::String(s) => format!("\"{}\"", s.replace('"', "\\\"")),
+        }
+    }
+
+    pub fn parse_scalar(val: &str) -> Self {
+        if val == "true" {
+            Self::Bool(true)
+        } else if val == "false" {
+            Self::Bool(false)
+        } else if val == "null" {
+            Self::Null
+        } else if INT_SCALAR.is_match(val) {
+            val.parse::<i64>()
+                .map(Self::Int)
+                .unwrap_or_else(|_| Self::String(val.to_string()))
+        } else if val.starts_with('"') && val.ends_with('"') && val.len() >= 2 {
+            let inner = &val[1..val.len() - 1];
+            Self::String(inner.replace("\\\"", "\""))
+        } else {
+            Self::String(val.to_string())
+        }
+    }
 }
+
+static INT_SCALAR: std::sync::LazyLock<regex::Regex> =
+    std::sync::LazyLock::new(|| regex::Regex::new(r"^-?\d+$").expect("INT_SCALAR"));
 
 /// In-memory draft representation.
 #[derive(Debug, Clone, PartialEq)]

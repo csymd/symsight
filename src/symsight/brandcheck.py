@@ -32,6 +32,8 @@ SKIP_DIRS = {
     ".ruff_cache",
     ".mypy_cache",
     ".pytest_cache",
+    "target",
+    "dist",
 }
 
 

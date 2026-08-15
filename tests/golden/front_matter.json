@@ -1,0 +1,58 @@
+{
+  "parse": [
+    {
+      "name": "quoted_bool_int",
+      "input": "---\ntitle: \"X\"\nword_count: 3\nstatus: \"draft\"\ndisclaimer: true\ntopic: null\n---\nHello",
+      "expected_body": "Hello",
+      "expected_front": {
+        "title": {"string": "X"},
+        "word_count": {"int": 3},
+        "status": {"string": "draft"},
+        "disclaimer": {"bool": true},
+        "topic": "null"
+      }
+    },
+    {
+      "name": "escaped",
+      "input": "---\ntitle: \"Say \\\"hi\\\"\"\n---\nBody",
+      "expected_body": "Body",
+      "expected_front": {
+        "title": {"string": "Say \"hi\""}
+      }
+    },
+    {
+      "name": "unquoted",
+      "input": "---\ntitle: Hello World\n---\nBody",
+      "expected_body": "Body",
+      "expected_front": {
+        "title": {"string": "Hello World"}
+      }
+    },
+    {
+      "name": "no_fm",
+      "input": "Just a body\n",
+      "expected_body": "Just a body\n",
+      "expected_front": {}
+    },
+    {
+      "name": "incomplete",
+      "input": "---\ntitle: X\n",
+      "expected_body": "---\ntitle: X\n",
+      "expected_front": {}
+    }
+  ],
+  "render": [
+    {
+      "name": "article_keys",
+      "front": [
+        ["title", {"string": "Hello World"}],
+        ["type", {"string": "general"}],
+        ["format", {"string": "article"}],
+        ["disclaimer", {"bool": true}],
+        ["topic", "null"],
+        ["word_count", {"int": 11}]
+      ],
+      "expected": "---\ntitle: \"Hello World\"\ntype: \"general\"\nformat: \"article\"\ndisclaimer: true\ntopic: null\nword_count: 11\n---\n"
+    }
+  ]
+}
