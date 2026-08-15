@@ -3,8 +3,19 @@
 
 //! Domain core for the symsight insight generator.
 //!
-//! This crate is a scaffold in the first Rust PR. Domain types and I/O land
-//! in follow-on PRs; Python remains the user-facing implementation until then.
+//! Python remains the user-facing implementation until later PRs land
+//! bindings. This crate currently owns brand models and YAML loading.
+
+pub mod brand;
+pub mod error;
+pub mod models;
+
+pub use brand::{list_brand_files, list_brands, load_brand_file, resolve_brand};
+pub use error::{BrandError, GenerateError};
+pub use models::{
+    ArticleFormatSpec, Brand, ContentFormat, Draft, DraftMeta, FormatSpecs, FrontValue,
+    GenerateRequest, SocialFormatSpec, TypeSpec,
+};
 
 /// Workspace package version, single-sourced from the root `Cargo.toml`.
 pub fn version() -> &'static str {
