@@ -1,0 +1,64 @@
+{
+  "cases": [
+    {
+      "name": "good",
+      "input": "Markets This Week",
+      "expected": true
+    },
+    {
+      "name": "process",
+      "input": "I will revise the essay now carefully",
+      "expected": false
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": false
+    },
+    {
+      "name": "too_long",
+      "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": false
+    },
+    {
+      "name": "http",
+      "input": "See http://example.com today",
+      "expected": false
+    },
+    {
+      "name": "https",
+      "input": "See https://example.com today",
+      "expected": false
+    },
+    {
+      "name": "footnote",
+      "input": "Title with [[1]] marker",
+      "expected": false
+    },
+    {
+      "name": "two_periods_long",
+      "input": "A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. A. end",
+      "expected": false
+    },
+    {
+      "name": "okay_comma",
+      "input": "Okay, here is a title that is not actually a title",
+      "expected": true
+    },
+    {
+      "name": "web_search",
+      "input": "web_search found three sources",
+      "expected": false
+    },
+    {
+      "name": "as_an_ai",
+      "input": "As an AI I would write this title",
+      "expected": false
+    },
+    {
+      "name": "short_ok",
+      "input": "Rates",
+      "expected": true
+    }
+  ]
+}

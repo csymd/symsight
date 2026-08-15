@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "name": "empty",
+      "input": "",
+      "expected": 0
+    },
+    {
+      "name": "abc",
+      "input": "abc",
+      "expected": 3
+    },
+    {
+      "name": "accents",
+      "input": "café",
+      "expected": 4
+    },
+    {
+      "name": "newline",
+      "input": "a\nb",
+      "expected": 3
+    }
+  ]
+}
