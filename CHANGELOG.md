@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Cargo workspace scaffold (`crates/symsight-core`) and Rust fmt/clippy/test CI job
 - Root `SECURITY.md` and `CODE_OF_CONDUCT.md`
 - `examples/` sample business brand, mini-project workspace, and static draft shapes
 - `NOTICE.md` with PalEm Dynamics LLC attribution
