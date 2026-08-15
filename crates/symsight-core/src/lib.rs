@@ -5,7 +5,7 @@
 //!
 //! Python remains the user-facing implementation until later PRs land
 //! bindings. This crate currently owns brand models, YAML loading, textutil,
-//! draft I/O, finalize, brandcheck, config, and prompts.
+//! draft I/O, finalize, brandcheck, config, prompts, and generate.
 
 pub mod brand;
 pub mod brandcheck;
@@ -13,6 +13,8 @@ pub mod config;
 pub mod draft_io;
 pub mod error;
 pub mod finalize;
+pub mod generate;
+pub mod llm;
 pub mod models;
 pub mod prompts;
 pub mod textutil;
@@ -28,8 +30,10 @@ pub use draft_io::{
     save_draft_body, set_status, strip_disclaimer_from_body, unique_draft_path,
     write_draft_content, write_meta_json, write_new_draft, WriteNewDraft,
 };
-pub use error::{BrandError, ConfigError, FinalizeError, GenerateError, TextError};
+pub use error::{BrandError, ConfigError, FinalizeError, GenerateError, LlmError, TextError};
 pub use finalize::{finalize_draft, list_final};
+pub use generate::{generate_and_write, generate_content};
+pub use llm::{response_text, CompletionRequest, LlmClient, ScriptedClient, XaiClient};
 pub use models::{
     ArticleFormatSpec, Brand, ContentFormat, Draft, DraftMeta, FormatSpecs, FrontValue,
     GenerateRequest, SocialFormatSpec, TypeSpec,

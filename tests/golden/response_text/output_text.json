@@ -1,0 +1,9 @@
+{
+  "output_text": "Hello from output_text",
+  "output": [
+    {
+      "type": "reasoning",
+      "content": [{"type": "output_text", "text": "should be ignored"}]
+    }
+  ]
+}
