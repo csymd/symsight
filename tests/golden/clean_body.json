@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "name": "plain",
+      "input": "Just a paragraph.",
+      "expected": "Just a paragraph."
+    },
+    {
+      "name": "citations",
+      "input": "Fact one [[1]](https://example.com) and more [2](https://x.test).",
+      "expected": "Fact one and more."
+    },
+    {
+      "name": "bare_footnote",
+      "input": "See [[3]] for details.",
+      "expected": "See for details."
+    },
+    {
+      "name": "leading_rule",
+      "input": "---\n\nBody after rule.",
+      "expected": "Body after rule."
+    },
+    {
+      "name": "leading_dashes",
+      "input": "---- leftover",
+      "expected": "leftover"
+    },
+    {
+      "name": "trailing_spaces",
+      "input": "line one   \nline two",
+      "expected": "line one\nline two"
+    },
+    {
+      "name": "double_space",
+      "input": "too  many   spaces.",
+      "expected": "too many spaces."
+    },
+    {
+      "name": "space_before_period",
+      "input": "end .",
+      "expected": "end."
+    }
+  ]
+}

@@ -55,6 +55,7 @@ cp .env.example .env
 - For Rust changes, also run `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test --workspace`.
 - Keep changes focused; one logical change per PR is preferred.
 - Generation tests that hit the network should stay mocked (see `tests/test_generate_mocked.py`).
+- Text helpers are locked by `tests/golden/*.json` (consumed by both `cargo test` and pytest). Regenerate only with `uv run python scripts/export_goldens.py` when you intend to change the Python contract — not after `textutil` becomes a Rust shim.
 
 ## Project layout
 

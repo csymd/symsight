@@ -39,3 +39,14 @@ pub enum GenerateError {
     #[error("{0}")]
     Message(String),
 }
+
+/// Title / body / social parse failure (`ValueError` in `symsight.textutil`).
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum TextError {
+    #[error("Could not parse TITLE/body from model output")]
+    EmptyTitleBody,
+    #[error("Parsed empty body from model output")]
+    EmptyBody,
+    #[error("Empty social text from model output")]
+    EmptySocial,
+}

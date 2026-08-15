@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "name": "here_is",
+      "input": "Here is a post:\n\nKeep it short and useful.",
+      "expected": "Keep it short and useful.",
+      "error": null
+    },
+    {
+      "name": "heres",
+      "input": "Here's a post:\n\nA compact tip for savers.",
+      "expected": "A compact tip for savers.",
+      "error": null
+    },
+    {
+      "name": "title_paragraph",
+      "input": "TITLE: ignore me\n\nThe actual social post text.",
+      "expected": "The actual social post text.",
+      "error": null
+    },
+    {
+      "name": "fenced",
+      "input": "```\nPost inside fences about rates.\n```",
+      "expected": "Post inside fences about rates.",
+      "error": null
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": null,
+      "error": "Empty social text from model output"
+    },
+    {
+      "name": "single",
+      "input": "One short tip about rebalancing.",
+      "expected": "One short tip about rebalancing.",
+      "error": null
+    },
+    {
+      "name": "multi",
+      "input": "First paragraph is the post.\n\nSecond paragraph is discarded.",
+      "expected": "First paragraph is the post.",
+      "error": null
+    }
+  ]
+}

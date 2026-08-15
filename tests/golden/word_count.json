@@ -1,0 +1,64 @@
+{
+  "cases": [
+    {
+      "name": "empty",
+      "input": "",
+      "expected": 0
+    },
+    {
+      "name": "hello",
+      "input": "Hello world",
+      "expected": 2
+    },
+    {
+      "name": "hyphen",
+      "input": "one-two three",
+      "expected": 3
+    },
+    {
+      "name": "apostrophe",
+      "input": "don't stop",
+      "expected": 2
+    },
+    {
+      "name": "underscore",
+      "input": "foo_bar",
+      "expected": 1
+    },
+    {
+      "name": "accents",
+      "input": "café au lait",
+      "expected": 3
+    },
+    {
+      "name": "punctuation",
+      "input": "...",
+      "expected": 0
+    },
+    {
+      "name": "padded",
+      "input": "  spaced  out  ",
+      "expected": 2
+    },
+    {
+      "name": "digits",
+      "input": "123 456",
+      "expected": 2
+    },
+    {
+      "name": "comma",
+      "input": "Hello, world!",
+      "expected": 2
+    },
+    {
+      "name": "well_known",
+      "input": "it's well-known",
+      "expected": 3
+    },
+    {
+      "name": "newline",
+      "input": "one\ntwo",
+      "expected": 2
+    }
+  ]
+}
