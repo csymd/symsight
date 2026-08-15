@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/symsight-core",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+license = "Apache-2.0"
+authors = ["PalEm Dynamics LLC"]
+repository = "https://github.com/bitterbeta/symsight"
+homepage = "https://github.com/bitterbeta/symsight"
+description = "Insight generator: articles and social posts with CLI and TUI"

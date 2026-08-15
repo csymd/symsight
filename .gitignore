@@ -73,7 +73,11 @@ docs/_build/
 
 # PyBuilder
 .pybuilder/
+
+# Rust (Cargo.lock is committed — this is an application workspace)
+/target
 target/
+*.pyd
 
 # Jupyter Notebook
 .ipynb_checkpoints
