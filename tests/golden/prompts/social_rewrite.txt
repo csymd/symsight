@@ -1,0 +1,5 @@
+Rewrite the social post below to at most 180 characters. Output ONLY the post text with no preamble, no quotes, no title.
+
+Current character count: 6.
+
+A post

@@ -10,5 +10,6 @@ uv run python scripts/export_goldens.py
 ```
 
 `front_matter.json` and `write_new_draft/` lock the hand-rolled draft codec
-against `src/symsight/draft_io.py`. Do **not** regenerate textutil goldens
-after `textutil.py` becomes a shim unless you intend to change the contract.
+against `src/symsight/draft_io.py`. `prompts/` snapshots lock
+`src/symsight/prompts.py`. Do **not** regenerate textutil goldens after
+`textutil.py` becomes a shim unless you intend to change the contract.
