@@ -53,6 +53,15 @@ pub enum FinalizeError {
     Io(#[from] std::io::Error),
 }
 
+/// Missing API key (`RuntimeError` from `AppConfig.require_api_key`).
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum ConfigError {
+    #[error(
+        "XAI_API_KEY is not set. Export it or add it to a git-ignored .env file.\n  export XAI_API_KEY=...\n  # see .env.example"
+    )]
+    MissingApiKey,
+}
+
 /// Title / body / social parse failure (`ValueError` in `symsight.textutil`).
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum TextError {
