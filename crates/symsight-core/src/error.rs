@@ -40,6 +40,19 @@ pub enum GenerateError {
     Message(String),
 }
 
+/// Finalize failure (`symsight.finalize.FinalizeError`).
+#[derive(Debug, Error)]
+pub enum FinalizeError {
+    #[error("Draft not found: {0}")]
+    NotFound(PathBuf),
+    #[error("Brand check failed on draft ({hits}). Fix before finalizing.")]
+    BrandCheck { hits: String },
+    #[error("Destination already exists: {0}")]
+    DestinationExists(PathBuf),
+    #[error("{0}")]
+    Io(#[from] std::io::Error),
+}
+
 /// Title / body / social parse failure (`ValueError` in `symsight.textutil`).
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum TextError {

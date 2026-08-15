@@ -1,0 +1,13 @@
+{
+  "model": "test-model",
+  "type": "general",
+  "format": "article",
+  "topic": null,
+  "brand_id": "fixture-co",
+  "used_web_search": false,
+  "word_count": 12,
+  "char_count": null,
+  "generated_at": "2026-08-15T12:00:00.000000+00:00",
+  "title": "Hello World",
+  "path": "<PATH>"
+}
