@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Rust `symsight-core` generate orchestration with injectable `LlmClient` (mocked in tests)
 - Rust `symsight-core` AppConfig merge and prompt builders with Python snapshots
 - Rust `symsight-core` draft I/O, finalize, and brandcheck with front-matter goldens
 - Rust `symsight-core` textutil port with committed golden vectors shared by pytest

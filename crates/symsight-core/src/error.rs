@@ -36,8 +36,19 @@ pub enum GenerateError {
         brand_id: String,
         known: String,
     },
+    #[error("Empty response from model")]
+    Empty,
+    #[error("Generated text contains forbidden brand variant(s): {hits}. Re-run generation.")]
+    Forbidden { hits: String },
     #[error("{0}")]
     Message(String),
+}
+
+/// HTTP / client failure from `XaiClient` (`RuntimeError` / request errors).
+#[derive(Debug, Error)]
+pub enum LlmError {
+    #[error("LLM request failed: {0}")]
+    Http(String),
 }
 
 /// Finalize failure (`symsight.finalize.FinalizeError`).
