@@ -228,6 +228,17 @@ tempCodeRunnerFile.py
 \#*\#
 *~
 
+# Vim swap, undo, session
+[._]*.s[a-v][a-z]
+!*.svg
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+.netrwhist
+[._]*.un~
+
 # Ruff stuff:
 .ruff_cache/
 
