@@ -4,6 +4,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from symsight.textutil import (
@@ -73,3 +76,59 @@ def test_extract_social_text() -> None:
 def test_extract_empty_raises() -> None:
     with pytest.raises(ValueError):
         extract_title_body("")
+
+
+GOLDEN = Path(__file__).parent / "golden"
+
+
+def _cases(name: str) -> list[dict[str, object]]:
+    payload = json.loads((GOLDEN / name).read_text(encoding="utf-8"))
+    return list(payload["cases"])
+
+
+@pytest.mark.parametrize("case", _cases("word_count.json"), ids=lambda c: str(c["name"]))
+def test_word_count_golden(case: dict[str, object]) -> None:
+    assert word_count(str(case["input"])) == case["expected"]
+
+
+@pytest.mark.parametrize("case", _cases("char_count.json"), ids=lambda c: str(c["name"]))
+def test_char_count_golden(case: dict[str, object]) -> None:
+    assert char_count(str(case["input"])) == case["expected"]
+
+
+@pytest.mark.parametrize("case", _cases("slugify.json"), ids=lambda c: str(c["name"]))
+def test_slugify_golden(case: dict[str, object]) -> None:
+    max_len = int(case["max_len"]) if "max_len" in case else 60
+    assert slugify(str(case["input"]), max_len=max_len) == case["expected"]
+
+
+@pytest.mark.parametrize("case", _cases("clean_body.json"), ids=lambda c: str(c["name"]))
+def test_clean_body_golden(case: dict[str, object]) -> None:
+    assert clean_body(str(case["input"])) == case["expected"]
+
+
+@pytest.mark.parametrize("case", _cases("is_plausible_title.json"), ids=lambda c: str(c["name"]))
+def test_is_plausible_title_golden(case: dict[str, object]) -> None:
+    assert is_plausible_title(str(case["input"])) is case["expected"]
+
+
+@pytest.mark.parametrize("case", _cases("extract_title_body.json"), ids=lambda c: str(c["name"]))
+def test_extract_title_body_golden(case: dict[str, object]) -> None:
+    if case.get("error"):
+        with pytest.raises(ValueError, match=str(case["error"])):
+            extract_title_body(str(case["input"]))
+        return
+    title, body = extract_title_body(str(case["input"]))
+    expected = case["expected"]
+    assert isinstance(expected, dict)
+    assert title == expected["title"]
+    assert body == expected["body"]
+
+
+@pytest.mark.parametrize("case", _cases("extract_social_text.json"), ids=lambda c: str(c["name"]))
+def test_extract_social_golden(case: dict[str, object]) -> None:
+    if case.get("error"):
+        with pytest.raises(ValueError, match=str(case["error"])):
+            extract_social_text(str(case["input"]))
+        return
+    assert extract_social_text(str(case["input"])) == case["expected"]

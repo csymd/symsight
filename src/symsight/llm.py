@@ -6,55 +6,25 @@ from __future__ import annotations
 
 from typing import Any
 
-from openai import OpenAI
+from symsight._impl import use_rust
 
-from symsight.config import DEFAULT_BASE_URL
+if use_rust():
+    from symsight._native import make_client as _make_client
+    from symsight._native import response_text as _response_text
 
+    def make_client(*, api_key: str, base_url: str | None = None) -> Any:
+        return _make_client(api_key, base_url)
 
-def make_client(*, api_key: str, base_url: str = DEFAULT_BASE_URL) -> OpenAI:
-    return OpenAI(api_key=api_key, base_url=base_url)
+    def response_text(response: object) -> str:
+        return str(_response_text(response))
 
+    def create_completion(*args: Any, **kwargs: Any) -> str:
+        raise RuntimeError(
+            "create_completion is not used on the Rust path; generate() talks to LlmClient directly"
+        )
+else:
+    from symsight._py import llm as _py_llm
 
-def response_text(response: object) -> str:
-    """Pull final assistant text; skip reasoning/tool chatter when possible."""
-    raw = getattr(response, "output_text", None) or ""
-    if raw.strip():
-        return raw
-
-    parts: list[str] = []
-    for item in getattr(response, "output", None) or []:
-        item_type = getattr(item, "type", None) or ""
-        if (
-            item_type
-            and item_type not in ("message", "output_text", "")
-            and ("reason" in item_type or "tool" in item_type)
-        ):
-            continue
-        for content in getattr(item, "content", None) or []:
-            ctype = getattr(content, "type", None)
-            if ctype in ("output_text", "text", None):
-                text = getattr(content, "text", None)
-                if text:
-                    parts.append(str(text))
-    return "".join(parts)
-
-
-def create_completion(
-    client: OpenAI,
-    *,
-    model: str,
-    system: str,
-    user: str,
-    use_search: bool = False,
-) -> str:
-    kwargs: dict[str, Any] = {
-        "model": model,
-        "input": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-    }
-    if use_search:
-        kwargs["tools"] = [{"type": "web_search"}]
-    response = client.responses.create(**kwargs)
-    return response_text(response)
+    create_completion = _py_llm.create_completion
+    make_client = _py_llm.make_client
+    response_text = _py_llm.response_text

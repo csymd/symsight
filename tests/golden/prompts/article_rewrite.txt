@@ -1,0 +1,10 @@
+Rewrite the essay below to 50–100 words. Output ONLY this format with no preamble, no citations, no process notes:
+TITLE: <short title>
+---
+<body>
+
+Current word count: 2.
+
+TITLE: T
+---
+Body text.

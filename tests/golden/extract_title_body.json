@@ -1,0 +1,115 @@
+{
+  "cases": [
+    {
+      "name": "clean",
+      "input": "TITLE: Markets Hold Steady\n---\nParagraph one.\n\nParagraph two.",
+      "expected": {
+        "title": "Markets Hold Steady",
+        "body": "Paragraph one.\n\nParagraph two."
+      },
+      "error": null
+    },
+    {
+      "name": "preamble",
+      "input": "I will write a careful essay.\nTITLE: Asset Allocation Basics\n---\nDiversification matters for most investors over time.",
+      "expected": {
+        "title": "Asset Allocation Basics",
+        "body": "Diversification matters for most investors over time."
+      },
+      "error": null
+    },
+    {
+      "name": "fenced",
+      "input": "```markdown\nTITLE: Fenced Title\n---\nFenced body paragraph.\n```",
+      "expected": {
+        "title": "Fenced Title",
+        "body": "Fenced body paragraph."
+      },
+      "error": null
+    },
+    {
+      "name": "multiple_titles",
+      "input": "TITLE: First Draft Title\n---\nscratch\nTITLE: Final Chosen Title\n---\nThe real body that should be kept.",
+      "expected": {
+        "title": "Final Chosen Title",
+        "body": "The real body that should be kept."
+      },
+      "error": null
+    },
+    {
+      "name": "implausible_then_good",
+      "input": "TITLE: I will revise the essay now carefully\n---\nnope\nTITLE: A Clear Market Note\n---\nUseful body text here.",
+      "expected": {
+        "title": "A Clear Market Note",
+        "body": "Useful body text here."
+      },
+      "error": null
+    },
+    {
+      "name": "only_implausible",
+      "input": "TITLE: I will revise the essay now carefully\n---\nBody still kept.",
+      "expected": {
+        "title": "I will revise the essay now carefully",
+        "body": "Body still kept."
+      },
+      "error": null
+    },
+    {
+      "name": "heading_fallback",
+      "input": "# Heading Line\n\nBody under heading.",
+      "expected": {
+        "title": "Heading Line",
+        "body": "Body under heading."
+      },
+      "error": null
+    },
+    {
+      "name": "implausible_first_line",
+      "input": "I will write something now.\n\nActual body paragraph stays.",
+      "expected": {
+        "title": "Untitled insight",
+        "body": "I will write something now.\nActual body paragraph stays."
+      },
+      "error": null
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": null,
+      "error": "Could not parse TITLE/body from model output"
+    },
+    {
+      "name": "title_empty_body",
+      "input": "TITLE: Only A Title\n---\n",
+      "expected": null,
+      "error": "Parsed empty body from model output"
+    },
+    {
+      "name": "quoted_title",
+      "input": "TITLE: \"Quoted Title\"\n---\nBody after quotes.",
+      "expected": {
+        "title": "Quoted Title",
+        "body": "Body after quotes."
+      },
+      "error": null
+    },
+    {
+      "name": "nested_title_token",
+      "input": "TITLE: TITLE: Nested Token Title\n---\nBody after nested token.",
+      "expected": {
+        "title": "Nested Token Title",
+        "body": "Body after nested token."
+      },
+      "error": null
+    },
+    {
+      "name": "inline_title",
+      "input": "Preamble TITLE: Mid Line Title\n---\nBody after inline title.",
+      "expected": {
+        "title": "Mid Line Title",
+        "body": "Body after inline title."
+      },
+      "error": null
+    }
+  ]
+}

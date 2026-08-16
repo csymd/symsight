@@ -1,0 +1,18 @@
+[package]
+name = "symsight-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Command-line interface for the symsight insight generator"
+
+[[bin]]
+name = "symsight"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+symsight-core = { path = "../symsight-core", version = "0.1.0" }

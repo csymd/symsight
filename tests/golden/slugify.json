@@ -1,0 +1,62 @@
+{
+  "cases": [
+    {
+      "name": "hello",
+      "input": "Hello World!",
+      "expected": "hello-world"
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": "insight"
+    },
+    {
+      "name": "whitespace",
+      "input": "  ",
+      "expected": "insight"
+    },
+    {
+      "name": "punctuation",
+      "input": "Hello, World!!!",
+      "expected": "hello-world"
+    },
+    {
+      "name": "unicode",
+      "input": "Café Time",
+      "expected": "caf-time"
+    },
+    {
+      "name": "hyphens",
+      "input": "---Hello---",
+      "expected": "hello"
+    },
+    {
+      "name": "already",
+      "input": "already-slug",
+      "expected": "already-slug"
+    },
+    {
+      "name": "default_max",
+      "input": "The Quick Brown Fox Jumps Over The Lazy Dog And Then Some Extra Words Here",
+      "expected": "the-quick-brown-fox-jumps-over-the-lazy-dog-and-then-some-ex"
+    },
+    {
+      "name": "max_40",
+      "input": "The Quick Brown Fox Jumps Over The Lazy Dog And Then Some Extra Words Here",
+      "max_len": 40,
+      "expected": "the-quick-brown-fox-jumps-over-the-lazy-"
+    },
+    {
+      "name": "max_60",
+      "input": "The Quick Brown Fox Jumps Over The Lazy Dog And Then Some Extra Words Here",
+      "max_len": 60,
+      "expected": "the-quick-brown-fox-jumps-over-the-lazy-dog-and-then-some-ex"
+    },
+    {
+      "name": "type_slug_40",
+      "input": "short-duration-bond-funds-and-more-extra",
+      "max_len": 40,
+      "expected": "short-duration-bond-funds-and-more-extra"
+    }
+  ]
+}

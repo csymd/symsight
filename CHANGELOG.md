@@ -8,33 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-16
+
 ### Added
 
-- Root `SECURITY.md` and `CODE_OF_CONDUCT.md`
-- `examples/` sample business brand, mini-project workspace, and static draft shapes
-- `NOTICE.md` with PalEm Dynamics LLC attribution
+- Initial release of **symsight**: brand-driven articles and social posts from YAML brand files
+- CLI (`generate`, `finalize`, `check`, `brands`, `tui`) and Textual TUI
+- Rust domain core (`symsight-core`) with Python bindings (`symsight._native` via PyO3 / maturin)
+- Native clap binary (`cargo run -p symsight-cli`); GitHub Release also ships `symsight-v*-x86_64-unknown-linux-gnu`
+- GitHub Release artifacts: manylinux wheel + sdist (PyPI publish remains paused)
+- Example brand, mini-project workspace, `SECURITY.md`, `CODE_OF_CONDUCT.md`, and `NOTICE.md`
 
 ### Changed
 
-- File headers and `LICENSE` appendix use `Copyright (c) 2026, PalEm Dynamics LLC`
-
-### Fixed
-
-- Package metadata URLs and Apache-2.0 license fields for public GitHub / PyPI
-
-## [0.1.0] - 2026-MM-DD
-
-### Added
-
-- Initial release of **symsight**: brand-driven insight generator for articles and social posts
+- Default implementation is Rust; `SYMSIGHT_IMPL=python` is a one-release fallback (`uv sync --extra legacy`)
+- Package version is sourced from the Cargo workspace (`pyproject.toml` is `dynamic = ["version"]`)
+- Brandcheck skip dirs include `target` and `dist` so Cargo / pack artifacts are not scanned
 
 ### Notes
 
-- `SymSight` will remain in active development under a beta tag until the API has been deemed stable. 
+- `SymSight` remains in active development under a beta tag until the API is deemed stable.
+- Generation tests stay mocked; CI does not call the live xAI API.
 
 ---
 
 ## Version Links
 
-[Unreleased]: https://github.com/bitterbeta/symsight/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/bitterbeta/symsight/releases/tag/v0.1.0
+[Unreleased]: https://github.com/csymd/symsight/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/csymd/symsight/releases/tag/v0.1.0

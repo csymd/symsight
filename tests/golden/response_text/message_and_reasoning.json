@@ -1,0 +1,17 @@
+{
+  "output_text": "",
+  "output": [
+    {
+      "type": "reasoning",
+      "content": [{"type": "output_text", "text": "thinking"}]
+    },
+    {
+      "type": "message",
+      "content": [{"type": "output_text", "text": "Visible "}, {"type": "text", "text": "answer"}]
+    },
+    {
+      "type": "web_search_tool",
+      "content": [{"type": "output_text", "text": "tool noise"}]
+    }
+  ]
+}
