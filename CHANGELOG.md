@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- TUI construct smoke tests (Textual is not driven in CI)
 - PyO3 module `symsight._native` and `SYMSIGHT_IMPL=python|rust` shims (default remains Python)
 - Optional native `symsight` clap binary (`cargo run -p symsight-cli`); `uv run symsight` is unchanged
 - Rust `symsight-core` generate orchestration with injectable `LlmClient` (mocked in tests)
