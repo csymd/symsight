@@ -223,6 +223,11 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# Emacs lock / autosave (e.g. .#uv.lock while editing uv.lock)
+.#*
+\#*\#
+*~
+
 # Ruff stuff:
 .ruff_cache/
 
