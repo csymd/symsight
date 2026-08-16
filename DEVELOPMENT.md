@@ -26,6 +26,9 @@ uv sync --extra dev
 uv run pytest
 SYMSIGHT_IMPL=rust uv run pytest
 
+# Owner soak (not in CI): TUI on the Rust core
+# SYMSIGHT_IMPL=rust uv run symsight tui
+
 # Lint
 uv run ruff check src tests
 
