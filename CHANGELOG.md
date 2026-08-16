@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Package version is sourced from the Cargo workspace (`pyproject.toml` is `dynamic = ["version"]`)
 - Brandcheck skip dirs include `target` and `dist` so Cargo / pack artifacts are not scanned
 - File headers and `LICENSE` appendix use `Copyright (c) 2026, PalEm Dynamics LLC`
+- Day-to-day CI runs on `develop` only; Release validation runs on PRs into `main`, pushes to `release/**`, and tags `v*` (no second full run on push to `main`)
 
 ### Fixed
 
