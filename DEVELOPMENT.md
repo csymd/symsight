@@ -94,7 +94,7 @@ feature/* ──► develop ──► stage ──► release/vX.Y.Z ──► m
 ```
 
 1. **Feature development** → merge to `develop`  
-   Day-to-day CI (ruff + pytest + Rust fmt/clippy/test) runs on push/PR to `develop` and `main`.
+   Day-to-day CI (ruff + pytest + Rust fmt/clippy/test) runs on push/PR to `develop` only.
 
 2. **Stage / early access** → fast-forward `develop` → `stage` when you want a promotion point.  
    Day-to-day CI does **not** run on `stage` (avoids double runs on FF). Pre-release tags (e.g. `v0.2.0-beta.1`) may be cut from here if needed.
@@ -136,8 +136,8 @@ git push origin v0.1.0
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`, `main` | Ruff + pytest (Rust default + Python fallback) + Rust fmt/clippy/test |
-| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `main` / `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop` | Ruff + pytest (Rust default + Python fallback) + Rust fmt/clippy/test |
+| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
 
 Release metadata enforces:
 

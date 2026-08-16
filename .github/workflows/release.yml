@@ -5,9 +5,11 @@
 #
 # Validation (meta, ruff, pytest, rust, manylinux wheel, native binary) runs on:
 #   - PRs into main
-#   - pushes to main / release/**
+#   - pushes to release/**
 #   - tags v*
 #   - workflow_dispatch (checks only; does not publish)
+#
+# Push to main is not a trigger: the PR into main already ran this workflow.
 #
 # Publish (GitHub Release with manylinux wheel/sdist + linux x86_64 binary)
 # runs only on tags v*, after validation succeeds. Create tags manually after
@@ -22,7 +24,6 @@ on:
     branches: [main]
   push:
     branches:
-      - main
       - "release/**"
     tags:
       - "v*"
