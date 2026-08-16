@@ -10,7 +10,7 @@ All changes must be owned by the human contributor, who reviews and maintains th
 
 | Path | Role |
 |------|------|
-| `src/symsight/` | Library (CLI, LLM, brands, TUI) |
+| `src/symsight/` | Library (CLI, LLM, brands, TUI; shims over `_py/` or `_native`) |
 | `config/brands/` | Brand YAML (ship example only) |
 | `tests/` | Pytest (mock the LLM for unit tests) |
 | `.github/workflows/` | CI + release (SymWorx-compatible cycle) |

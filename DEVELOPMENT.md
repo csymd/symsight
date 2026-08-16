@@ -11,7 +11,7 @@ For agent/tooling guidelines, see [AGENTS.md](AGENTS.md). Contributors own all s
 - Python 3.11+ (3.12 recommended; CI matrix is 3.11 + 3.12)
 - [uv](https://docs.astral.sh/uv/)
 - A SpaceXAI / xAI API key for live generation (`XAI_API_KEY`)
-- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required for the Cargo workspace and the Rust CI job. The user-facing CLI is still Python (`uv run symsight`). `rust-toolchain.toml` pins `stable` and the extra components.
+- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. The default implementation is still Python (`SYMSIGHT_IMPL=python`). `rust-toolchain.toml` pins `stable` and the extra components.
 
 ## Common commands
 
@@ -22,8 +22,9 @@ uv sync
 # Install with lint/test tools
 uv sync --extra dev
 
-# Tests
+# Tests (default implementation is still Python)
 uv run pytest
+SYMSIGHT_IMPL=rust uv run pytest
 
 # Lint
 uv run ruff check src tests
@@ -69,6 +70,7 @@ cp .env.example .env
 | `src/symsight/` | Library (CLI, generate, brands, TUI) |
 | `crates/symsight-core/` | Rust domain crate (Python is still the user-facing implementation) |
 | `crates/symsight-cli/` | Optional clap binary (`cargo run -p symsight-cli`); flags match `uv run symsight` |
+| `crates/symsight-py/` | PyO3 cdylib published as `symsight._native`; selected by `SYMSIGHT_IMPL` |
 | `config/brands/` | Brand YAML (example only in-repo) |
 | `content/drafts/`, `content/final/` | Local drafts (usually not released) |
 | `scripts/` | Thin entrypoints wrapping the library |

@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/symsight-core",
     "crates/symsight-cli",
+    "crates/symsight-py",
 ]
 
 [workspace.package]
@@ -11,8 +12,8 @@ edition = "2021"
 rust-version = "1.82"
 license = "Apache-2.0"
 authors = ["PalEm Dynamics LLC"]
-repository = "https://github.com/bitterbeta/symsight"
-homepage = "https://github.com/bitterbeta/symsight"
+repository = "https://github.com/csymd/symsight"
+homepage = "https://github.com/csymd/symsight"
 description = "Insight generator: articles and social posts with CLI and TUI"
 
 [workspace.dependencies]
@@ -21,6 +22,7 @@ clap = { version = "4", features = ["derive"] }
 dirs = "6"
 dotenvy = "0.15"
 indexmap = { version = "2", features = ["serde"] }
+pyo3 = { version = "0.23", features = ["abi3-py311"] }
 regex = "1"
 reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 serde = { version = "1", features = ["derive"] }
