@@ -4,211 +4,107 @@
 
 from __future__ import annotations
 
-import json
-import re
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from symsight._impl import use_rust
 from symsight.models import ContentFormat, Draft, DraftMeta
-from symsight.textutil import char_count, slugify, word_count
 
+if use_rust():
+    from symsight._native import list_drafts as _list_drafts
+    from symsight._native import parse_front_matter as _parse_front_matter
+    from symsight._native import read_draft as _read_draft
+    from symsight._native import render_front_matter as _render_front_matter
+    from symsight._native import save_draft_body as _save_draft_body
+    from symsight._native import set_status as _set_status
+    from symsight._native import strip_disclaimer_from_body as _strip_disclaimer
+    from symsight._native import unique_draft_path as _unique_draft_path
+    from symsight._native import write_draft_content as _write_draft_content
+    from symsight._native import write_new_draft as _write_new_draft
 
-def parse_front_matter(raw: str) -> tuple[dict[str, Any], str]:
-    if not raw.startswith("---"):
-        return {}, raw
-    parts = raw.split("---", 2)
-    if len(parts) < 3:
-        return {}, raw
-    fm_raw, body = parts[1], parts[2]
-    meta: dict[str, Any] = {}
-    for line in fm_raw.strip().splitlines():
-        if ":" not in line:
-            continue
-        key, val = line.split(":", 1)
-        key = key.strip()
-        val = val.strip()
-        if val in ("true", "false"):
-            meta[key] = val == "true"
-        elif val == "null":
-            meta[key] = None
-        elif re.fullmatch(r"-?\d+", val):
-            meta[key] = int(val)
-        elif val.startswith('"') and val.endswith('"'):
-            meta[key] = val[1:-1].replace('\\"', '"')
-        else:
-            meta[key] = val
-    return meta, body.lstrip("\n")
+    def parse_front_matter(raw: str) -> tuple[dict[str, Any], str]:
+        fm, body = _parse_front_matter(raw)
+        return dict(fm), str(body)
 
+    def render_front_matter(front: dict[str, Any]) -> str:
+        return str(_render_front_matter(front))
 
-def _yq(v: object) -> str:
-    if v is None:
-        return "null"
-    if isinstance(v, bool):
-        return "true" if v else "false"
-    if isinstance(v, (int, float)):
-        return str(v)
-    s = str(v).replace('"', '\\"')
-    return f'"{s}"'
+    def strip_disclaimer_from_body(body: str) -> str:
+        return str(_strip_disclaimer(body))
 
-
-def render_front_matter(front: dict[str, Any]) -> str:
-    lines = ["---"] + [f"{k}: {_yq(v)}" for k, v in front.items()] + ["---", ""]
-    return "\n".join(lines)
-
-
-def strip_disclaimer_from_body(body: str) -> str:
-    body = re.sub(
-        r"\n---\s*\n+\*\*Disclaimer\.\*\*.*$",
-        "",
-        body,
-        flags=re.IGNORECASE | re.DOTALL,
-    )
-    return body.strip()
-
-
-def read_draft(path: Path) -> Draft:
-    raw = path.read_text(encoding="utf-8")
-    fm, body = parse_front_matter(raw)
-    body = strip_disclaimer_from_body(body)
-    title = str(fm.get("title") or path.stem)
-    meta = None
-    meta_path = path.with_suffix(".meta.json")
-    if meta_path.is_file():
-        try:
-            meta = DraftMeta.model_validate_json(meta_path.read_text(encoding="utf-8"))
-        except Exception:  # noqa: BLE001
-            meta = None
-    return Draft(path=path, title=title, body=body, front_matter=fm, meta=meta)
-
-
-def list_drafts(drafts_dir: Path) -> list[Draft]:
-    if not drafts_dir.is_dir():
-        return []
-    drafts: list[Draft] = []
-    for path in sorted(drafts_dir.glob("*.md"), reverse=True):
-        try:
-            drafts.append(read_draft(path))
-        except OSError:
-            continue
-    return drafts
-
-
-def write_draft_content(
-    path: Path,
-    *,
-    front: dict[str, Any],
-    body: str,
-    disclaimer: str | None = None,
-) -> None:
-    content = render_front_matter(front) + body.rstrip()
-    if disclaimer:
-        content += f"\n\n---\n\n**Disclaimer.** {disclaimer.strip()}\n"
-    else:
-        content += "\n"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
-
-
-def save_draft_body(path: Path, body: str, *, disclaimer: str | None = None) -> Draft:
-    """Rewrite body keeping front matter; refresh word/char counts."""
-    draft = read_draft(path)
-    fm = dict(draft.front_matter)
-    fmt = str(fm.get("format", "article"))
-    if fmt == ContentFormat.SOCIAL.value:
-        fm["char_count"] = char_count(body)
-        fm.pop("word_count", None)
-    else:
-        fm["word_count"] = word_count(body)
-    # Preserve disclaimer flag
-    disc = disclaimer
-    if disc is None and fm.get("disclaimer"):
-        # re-read original for disclaimer text is hard — leave block off if not provided
-        disc = None
-    write_draft_content(path, front=fm, body=body, disclaimer=disc)
-    return read_draft(path)
-
-
-def set_status(path: Path, status: str) -> None:
-    raw = path.read_text(encoding="utf-8")
-    updated = re.sub(
-        r'^status:\s*".*?"',
-        f'status: "{status}"',
-        raw,
-        count=1,
-        flags=re.MULTILINE,
-    )
-    if updated == raw:
-        updated = re.sub(
-            r"^status:\s*\S+",
-            f'status: "{status}"',
-            raw,
-            count=1,
-            flags=re.MULTILINE,
+    def read_draft(path: Path) -> Draft:
+        data = _read_draft(str(path))
+        meta = None
+        if data.get("meta"):
+            meta = DraftMeta.model_validate(data["meta"])
+        return Draft(
+            path=Path(data["path"]) if data.get("path") else path,
+            title=data["title"],
+            body=data["body"],
+            front_matter=dict(data.get("front_matter") or {}),
+            meta=meta,
         )
-    if updated == raw and raw.startswith("---"):
-        # inject status into front matter
-        parts = raw.split("---", 2)
-        if len(parts) >= 3:
-            fm = parts[1].rstrip() + f'\nstatus: "{status}"\n'
-            updated = f"---{fm}---{parts[2]}"
-    path.write_text(updated, encoding="utf-8")
 
+    def list_drafts(drafts_dir: Path) -> list[Draft]:
+        return [read_draft(Path(p)) for p in _list_drafts(str(drafts_dir))]
 
-def unique_draft_path(drafts_dir: Path, stem: str) -> Path:
-    drafts_dir.mkdir(parents=True, exist_ok=True)
-    path = drafts_dir / f"{stem}.md"
-    n = 2
-    while path.exists():
-        path = drafts_dir / f"{stem}-{n}.md"
-        n += 1
-    return path
+    def write_draft_content(
+        path: Path,
+        *,
+        front: dict[str, Any],
+        body: str,
+        disclaimer: str | None = None,
+    ) -> None:
+        _write_draft_content(str(path), front, body, disclaimer)
 
+    def save_draft_body(path: Path, body: str, *, disclaimer: str | None = None) -> Draft:
+        _save_draft_body(str(path), body, disclaimer)
+        return read_draft(path)
 
-def write_new_draft(
-    *,
-    drafts_dir: Path,
-    title: str,
-    body: str,
-    brand_id: str,
-    brand_display: str,
-    type_id: str,
-    fmt: ContentFormat,
-    topic: str | None,
-    disclaimer: str | None,
-    meta: DraftMeta,
-) -> Path:
-    date = datetime.now(UTC).strftime("%Y-%m-%d")
-    type_slug = slugify(type_id, max_len=40)
-    if fmt == ContentFormat.SOCIAL:
-        stem = f"{date}-social-{slugify(title or body[:40])}"
-    else:
-        stem = f"{date}-{type_slug}-{slugify(title)}"
-    path = unique_draft_path(drafts_dir, stem)
+    def set_status(path: Path, status: str) -> None:
+        _set_status(str(path), status)
 
-    front: dict[str, Any] = {
-        "title": title,
-        "type": type_id,
-        "format": fmt.value,
-        "brand": brand_id,
-        "brand_name": brand_display,
-        "generated_at": meta.generated_at,
-        "status": "draft",
-        "disclaimer": bool(disclaimer),
-        "topic": topic,
-    }
-    if fmt == ContentFormat.SOCIAL:
-        front["char_count"] = char_count(body)
-    else:
-        front["word_count"] = word_count(body)
+    def unique_draft_path(drafts_dir: Path, stem: str) -> Path:
+        return Path(_unique_draft_path(str(drafts_dir), stem))
 
-    write_draft_content(path, front=front, body=body, disclaimer=disclaimer)
+    def write_new_draft(
+        *,
+        drafts_dir: Path,
+        title: str,
+        body: str,
+        brand_id: str,
+        brand_display: str,
+        type_id: str,
+        fmt: ContentFormat,
+        topic: str | None,
+        disclaimer: str | None,
+        meta: DraftMeta,
+    ) -> Path:
+        fmt_val = fmt.value if hasattr(fmt, "value") else str(fmt)
+        return Path(
+            _write_new_draft(
+                str(drafts_dir),
+                title,
+                body,
+                brand_id,
+                brand_display,
+                type_id,
+                fmt_val,
+                meta,
+                topic,
+                disclaimer,
+            )
+        )
+else:
+    from symsight._py import draft_io as _py_draft_io
 
-    meta_path = path.with_suffix(".meta.json")
-    meta_out = meta.model_copy(update={"title": title, "path": str(path)})
-    meta_path.write_text(meta_out.model_dump_json(indent=2), encoding="utf-8")
-    return path
-
-
-def write_meta_json(path: Path, data: dict[str, Any]) -> None:
-    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    list_drafts = _py_draft_io.list_drafts
+    parse_front_matter = _py_draft_io.parse_front_matter
+    read_draft = _py_draft_io.read_draft
+    render_front_matter = _py_draft_io.render_front_matter
+    save_draft_body = _py_draft_io.save_draft_body
+    set_status = _py_draft_io.set_status
+    strip_disclaimer_from_body = _py_draft_io.strip_disclaimer_from_body
+    unique_draft_path = _py_draft_io.unique_draft_path
+    write_draft_content = _py_draft_io.write_draft_content
+    write_new_draft = _py_draft_io.write_new_draft

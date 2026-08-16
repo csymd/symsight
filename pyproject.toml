@@ -60,28 +60,19 @@ Issues = "https://github.com/bitterbeta/symsight/issues"
 Changelog = "https://github.com/bitterbeta/symsight/blob/main/CHANGELOG.md"
 
 [build-system]
-requires = ["hatchling>=1.24"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.8,<2.0"]
+build-backend = "maturin"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/symsight"]
-
-[tool.hatch.build.targets.sdist]
+[tool.maturin]
+manifest-path = "crates/symsight-py/Cargo.toml"
+python-source = "src"
+module-name = "symsight._native"
+features = ["pyo3/extension-module"]
 include = [
-    "src/symsight",
-    "config",
-    "examples",
-    "scripts",
-    "tests",
-    "README.md",
-    "LICENSE",
-    "NOTICE.md",
-    "CHANGELOG.md",
-    "SECURITY.md",
-    "CODE_OF_CONDUCT.md",
-    "CONTRIBUTING.md",
-    "DEVELOPMENT.md",
-    "pyproject.toml",
+    "config/**/*",
+    "examples/**/*",
+    "scripts/**/*",
+    "tests/**/*",
 ]
 
 [tool.pytest.ini_options]

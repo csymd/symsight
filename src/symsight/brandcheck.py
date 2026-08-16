@@ -5,82 +5,41 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
-from symsight.models import Brand
+from symsight._impl import use_rust
 
-SCAN_EXTENSIONS = {
-    ".html",
-    ".md",
-    ".css",
-    ".js",
-    ".json",
-    ".txt",
-    ".svg",
-    ".py",
-    ".yml",
-    ".yaml",
-    ".toml",
-}
+if use_rust():
+    from symsight._native import check_path as _check_path
+    from symsight._native import check_text as _check_text
+    from symsight._native import find_hits as _find_hits
+    from symsight._native import iter_scan_files as _iter_scan_files
+    from symsight._native import scan_paths as _scan_paths
 
-SKIP_DIRS = {
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "node_modules",
-    ".grok",
-    ".ruff_cache",
-    ".mypy_cache",
-    ".pytest_cache",
-    "target",
-    "dist",
-}
+    def find_hits(text: str, forbidden: list[str]) -> list[str]:
+        return list(_find_hits(text, list(forbidden)))
 
+    def check_text(text: str, brand: Any) -> list[str]:
+        return list(_check_text(text, brand))
 
-def find_hits(text: str, forbidden: list[str]) -> list[str]:
-    lower = text.lower()
-    return [term for term in forbidden if term.lower() in lower]
+    def check_path(path: Path, brand: Any) -> list[str]:
+        return list(_check_path(str(path), brand))
 
+    def iter_scan_files(roots: list[Path]) -> list[Path]:
+        return [Path(p) for p in _iter_scan_files([str(r) for r in roots])]
 
-def check_text(text: str, brand: Brand) -> list[str]:
-    return find_hits(text, brand.forbidden)
+    def scan_paths(roots: list[Path], brand: Any) -> list[tuple[Path, list[str]]]:
+        out: list[tuple[Path, list[str]]] = []
+        for path, hits in _scan_paths([str(r) for r in roots], brand):
+            out.append((Path(path), list(hits)))
+        return out
+else:
+    from symsight._py import brandcheck as _py_brandcheck
 
-
-def check_path(path: Path, brand: Brand) -> list[str]:
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        return []
-    return check_text(text, brand)
-
-
-def iter_scan_files(roots: list[Path]) -> list[Path]:
-    files: list[Path] = []
-    for root in roots:
-        root = root.resolve()
-        if root.is_file():
-            files.append(root)
-            continue
-        if not root.is_dir():
-            continue
-        for path in root.rglob("*"):
-            if not path.is_file():
-                continue
-            if any(part in SKIP_DIRS for part in path.parts):
-                continue
-            if path.suffix.lower() not in SCAN_EXTENSIONS and path.name not in {
-                "README",
-                "README.md",
-            }:
-                continue
-            files.append(path)
-    return sorted(set(files))
-
-
-def scan_paths(roots: list[Path], brand: Brand) -> list[tuple[Path, list[str]]]:
-    problems: list[tuple[Path, list[str]]] = []
-    for path in iter_scan_files(roots):
-        hits = check_path(path, brand)
-        if hits:
-            problems.append((path, sorted(set(hits))))
-    return problems
+    SCAN_EXTENSIONS = _py_brandcheck.SCAN_EXTENSIONS
+    SKIP_DIRS = _py_brandcheck.SKIP_DIRS
+    check_path = _py_brandcheck.check_path
+    check_text = _py_brandcheck.check_text
+    find_hits = _py_brandcheck.find_hits
+    iter_scan_files = _py_brandcheck.iter_scan_files
+    scan_paths = _py_brandcheck.scan_paths
