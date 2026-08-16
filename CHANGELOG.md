@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Default implementation is Rust; `SYMSIGHT_IMPL=python` is the one-release fallback (`--extra legacy`)
+- GitHub Release ships a manylinux wheel/sdist and `symsight-v*-x86_64-unknown-linux-gnu`
 - TUI construct smoke tests (Textual is not driven in CI)
 - PyO3 module `symsight._native` and `SYMSIGHT_IMPL=python|rust` shims (default remains Python)
 - Optional native `symsight` clap binary (`cargo run -p symsight-cli`); `uv run symsight` is unchanged
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Package version is sourced from the Cargo workspace (`pyproject.toml` is `dynamic = ["version"]`)
 - Brandcheck skip dirs include `target` and `dist` so Cargo / pack artifacts are not scanned
 - File headers and `LICENSE` appendix use `Copyright (c) 2026, PalEm Dynamics LLC`
 

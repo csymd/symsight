@@ -9,8 +9,8 @@ import os
 
 
 def impl_name() -> str:
-    return os.environ.get("SYMSIGHT_IMPL", "python").strip().lower()
+    return os.environ.get("SYMSIGHT_IMPL", "rust").strip().lower()
 
 
 def use_rust() -> bool:
-    return impl_name() in {"rust", "native"}
+    return impl_name() not in {"python", "py", "legacy"}

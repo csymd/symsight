@@ -1,6 +1,6 @@
 [project]
 name = "symsight"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Insight generator: articles and social posts with CLI and TUI"
 readme = "README.md"
 license = "Apache-2.0"
@@ -30,7 +30,6 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "openai>=1.40.0",
     "python-dotenv>=1.0.0",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
@@ -39,6 +38,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+legacy = [
+    "openai>=1.40.0",
+]
 test = [
     "pytest>=8.0",
     "pytest-mock>=3.10",

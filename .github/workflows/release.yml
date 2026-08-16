@@ -3,14 +3,15 @@
 # Branch model:
 #   develop → stage → release/vX.Y.Z → main → manual tag vX.Y.Z
 #
-# Validation (meta, ruff, tests, package build) runs on:
+# Validation (meta, ruff, pytest, rust, manylinux wheel, native binary) runs on:
 #   - PRs into main
 #   - pushes to main / release/**
 #   - tags v*
 #   - workflow_dispatch (checks only; does not publish)
 #
-# Publish (GitHub Release with wheel/sdist) runs only on tags v*, after
-# validation succeeds. Create tags manually after merging release/* → main.
+# Publish (GitHub Release with manylinux wheel/sdist + linux x86_64 binary)
+# runs only on tags v*, after validation succeeds. Create tags manually after
+# merging release/* → main.
 #
 # PyPI publish is paused until a trusted publisher is configured.
 
@@ -58,12 +59,12 @@ jobs:
             python3 - <<'PY'
           import tomllib
           from pathlib import Path
-          data = tomllib.loads(Path("pyproject.toml").read_text())
-          print(data["project"]["version"])
+          data = tomllib.loads(Path("Cargo.toml").read_text())
+          print(data["workspace"]["package"]["version"])
           PY
           )
           if [[ -z "${PKG_VERSION}" ]]; then
-            echo "::error::Could not read project.version from pyproject.toml"
+            echo "::error::Could not read workspace.package.version from Cargo.toml"
             exit 1
           fi
           echo "package_version=${PKG_VERSION}"
@@ -85,14 +86,14 @@ jobs:
             BRANCH_VERSION="${BRANCH_REF#release/}"
             BRANCH_VERSION="${BRANCH_VERSION#v}"
             if [[ "${BRANCH_VERSION}" != "${PKG_VERSION}" ]]; then
-              echo "::error::release branch '${BRANCH_REF}' version (${BRANCH_VERSION}) does not match pyproject.toml version (${PKG_VERSION})"
+              echo "::error::release branch '${BRANCH_REF}' version (${BRANCH_VERSION}) does not match Cargo.toml workspace version (${PKG_VERSION})"
               exit 1
             fi
           fi
 
           if [[ "${IS_TAG}" == "true" ]]; then
             if [[ "${TAG_VERSION}" != "${PKG_VERSION}" ]]; then
-              echo "::error::Tag v${TAG_VERSION} does not match pyproject.toml version ${PKG_VERSION}"
+              echo "::error::Tag v${TAG_VERSION} does not match Cargo.toml workspace version ${PKG_VERSION}"
               exit 1
             fi
             # Final releases should land on main; pre-releases may come from stage.
@@ -142,6 +143,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -163,6 +167,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
@@ -177,12 +186,19 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
-  build:
-    name: Build package
+  test-python:
+    name: Pytest python fallback
     runs-on: ubuntu-latest
     needs: release-meta
+    env:
+      SYMSIGHT_IMPL: python
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -192,13 +208,54 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
-      - name: Build sdist + wheel
-        run: uv build
+      - name: Sync project + test + legacy deps
+        run: uv sync --extra test --extra legacy
+
+      - name: Run tests (Python fallback)
+        run: uv run pytest
+
+  rust:
+    name: Rust (fmt, clippy, test)
+    runs-on: ubuntu-latest
+    needs: release-meta
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+
+      - name: clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: test
+        run: cargo test --workspace
+
+  build:
+    name: Build manylinux wheel + sdist
+    runs-on: ubuntu-latest
+    needs: release-meta
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist + manylinux wheel
+        uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: --release --out dist --sdist
+          manylinux: auto
+          rust-toolchain: stable
 
       - name: List artifacts
         run: ls -la dist/
 
-      - name: Upload build artifacts
+      - name: Upload wheel/sdist artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-v${{ needs.release-meta.outputs.version }}
@@ -206,11 +263,42 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  build-native:
+    name: Build linux x86_64 binary
+    runs-on: ubuntu-latest
+    needs: release-meta
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build clap binary
+        run: cargo build -p symsight-cli --release
+
+      - name: Strip and name artifact
+        run: |
+          set -euo pipefail
+          strip target/release/symsight
+          mkdir -p dist-native
+          cp target/release/symsight \
+            "dist-native/symsight-v${{ needs.release-meta.outputs.version }}-x86_64-unknown-linux-gnu"
+
+      - name: Upload native binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-v${{ needs.release-meta.outputs.version }}
+          path: dist-native/*
+          if-no-files-found: error
+          retention-days: 14
+
   # Aggregate gate used by branch protection / required checks
   release-ready:
     name: Release checks passed
     runs-on: ubuntu-latest
-    needs: [release-meta, lint, test, build]
+    needs: [release-meta, lint, test, test-python, rust, build, build-native]
     if: always()
     steps:
       - name: Require all validation jobs
@@ -219,11 +307,17 @@ jobs:
           echo "release-meta: ${{ needs.release-meta.result }}"
           echo "lint: ${{ needs.lint.result }}"
           echo "test: ${{ needs.test.result }}"
+          echo "test-python: ${{ needs.test-python.result }}"
+          echo "rust: ${{ needs.rust.result }}"
           echo "build: ${{ needs.build.result }}"
+          echo "build-native: ${{ needs.build-native.result }}"
           test "${{ needs.release-meta.result }}" = "success"
           test "${{ needs.lint.result }}" = "success"
           test "${{ needs.test.result }}" = "success"
+          test "${{ needs.test-python.result }}" = "success"
+          test "${{ needs.rust.result }}" = "success"
           test "${{ needs.build.result }}" = "success"
+          test "${{ needs.build-native.result }}" = "success"
           echo "All release validation jobs passed for v${{ needs.release-meta.outputs.version }}"
           echo "On tag pushes: github-release runs next (PyPI paused)."
 
@@ -240,11 +334,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download build artifacts
+      - name: Download wheel/sdist artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist-v${{ needs.release-meta.outputs.version }}
           path: dist
+
+      - name: Download native binary
+        uses: actions/download-artifact@v4
+        with:
+          name: native-v${{ needs.release-meta.outputs.version }}
+          path: dist-native
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -255,6 +355,7 @@ jobs:
           generate_release_notes: true
           files: |
             dist/*
+            dist-native/*
 
   # ---------------------------------------------------------------------------
   # PyPI publish — PAUSED. Validation still builds sdist/wheel artifacts.

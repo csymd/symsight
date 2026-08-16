@@ -21,7 +21,7 @@ Same as SymWorx:
 
 1. Feature work → **`develop`** (day-to-day CI).
 2. Promote with FF **`develop` → `stage`** (no day-to-day CI on `stage`).
-3. Cut **`release/vX.Y.Z`**, bump `pyproject.toml` version, add `## [X.Y.Z]` to `CHANGELOG.md`.
+3. Cut **`release/vX.Y.Z`**, bump `[workspace.package].version` in `Cargo.toml`, add `## [X.Y.Z]` to `CHANGELOG.md`.
 4. PR **`release/*` → `main`**; merge when Release checks are green.
 5. **Manually** tag `vX.Y.Z` on `main` (no auto-tag job). Tag runs publish (GitHub Release; PyPI paused).
 
@@ -39,6 +39,8 @@ See [DEVELOPMENT.md](DEVELOPMENT.md).
 ```bash
 uv sync --extra dev
 uv run pytest
+SYMSIGHT_IMPL=python uv run pytest   # fallback; needs --extra legacy
 uv run ruff check src tests
+cargo test --workspace
 uv run symsight --help
 ```

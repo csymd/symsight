@@ -1,14 +1,29 @@
 # symsight
 
-`SymSight` is an insight generator meant to produce **blogs/articles** or **social posts** with a reproducible [uv](https://docs.astral.sh/uv/) environment, library + thin CLIs, and a **Textual** TUI.
+`SymSight` is an insight generator meant to produce **blogs/articles** or **social posts** with a reproducible [uv](https://docs.astral.sh/uv/) environment, a Rust core (`symsight._native`), library + thin CLIs, and a **Textual** TUI.
 
 Voice, firm name, disclaimers, forbidden terms, and content-type prompts live in **YAML brand files**.
 
 ## Setup
 
 ```bash
+# Rust 1.82+ is required: uv sync compiles the native extension.
 uv sync
 cp .env.example .env   # set XAI_API_KEY from https://console.x.ai
+```
+
+The domain core defaults to Rust. Rollback for one release:
+
+```bash
+uv sync --extra legacy
+SYMSIGHT_IMPL=python uv run pytest
+SYMSIGHT_IMPL=python uv run symsight brands
+```
+
+Headless native binary (no Python) after a GitHub Release, or locally:
+
+```bash
+cargo run -p symsight-cli -- brands
 ```
 
 Optional project config:
@@ -94,7 +109,8 @@ config/brands/          # default brand YAML (example-writer)
 content/drafts/         # working drafts (gitignored bodies)
 content/final/          # finalized markdown
 examples/               # sample brands, mini-project, static drafts
-src/symsight/           # library
+src/symsight/           # Python package (shims + Textual TUI)
+crates/                 # Rust core, clap CLI, PyO3 bindings
 scripts/                # thin entrypoints
 tests/
 ```
@@ -104,6 +120,7 @@ tests/
 ```bash
 uv sync --extra dev
 uv run pytest
+SYMSIGHT_IMPL=python uv run pytest   # fallback (needs --extra legacy)
 uv run ruff check src tests
 ```
 
@@ -119,4 +136,5 @@ Copyright (c) 2026, PalEm Dynamics LLC.
 ## Notes
 
 - Generation uses SpaceXAI / xAI (`XAI_API_KEY`, `https://api.x.ai/v1`, default model `grok-4.5`).
+- The default implementation is Rust (`SYMSIGHT_IMPL=rust`). Set `SYMSIGHT_IMPL=python` for the legacy fallback.
 - Finalize is **markdown only** (move/copy).

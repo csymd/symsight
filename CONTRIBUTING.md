@@ -15,7 +15,7 @@ AI tools are fine. You remain responsible for the result: explain the change, ke
 1. Fork/clone the repository.
 2. Set up the environment (see [DEVELOPMENT.md](DEVELOPMENT.md)).
 3. Branch from **`develop`** (`git checkout -b feature/your-feature-name`).
-4. Make changes; run `uv run pytest` and `uv run ruff check src tests`.
+4. Make changes; run `uv run pytest`, `cargo test --workspace`, and `uv run ruff check src tests`. Need Rust 1.82+ (`uv sync` builds the native extension).
 5. Open a PR into **`develop`** (day-to-day work) unless you are preparing a release.
 
 ## Pull requests
