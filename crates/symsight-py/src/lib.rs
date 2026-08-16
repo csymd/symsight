@@ -613,6 +613,7 @@ fn response_text_py(response: Bound<'_, PyAny>) -> PyResult<String> {
 
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add("BrandError", m.py().get_type::<BrandErrorPy>())?;
     m.add("GenerateError", m.py().get_type::<GenerateErrorPy>())?;
     m.add("FinalizeError", m.py().get_type::<FinalizeErrorPy>())?;

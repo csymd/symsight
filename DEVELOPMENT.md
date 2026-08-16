@@ -11,7 +11,7 @@ For agent/tooling guidelines, see [AGENTS.md](AGENTS.md). Contributors own all s
 - Python 3.11+ (3.12 recommended; CI matrix is 3.11 + 3.12)
 - [uv](https://docs.astral.sh/uv/)
 - A SpaceXAI / xAI API key for live generation (`XAI_API_KEY`)
-- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. The default implementation is still Python (`SYMSIGHT_IMPL=python`). `rust-toolchain.toml` pins `stable` and the extra components.
+- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. The default implementation is Rust. `SYMSIGHT_IMPL=python` selects the legacy fallback (`uv sync --extra legacy`). `rust-toolchain.toml` pins `stable` and the extra components.
 
 ## Common commands
 
@@ -22,12 +22,13 @@ uv sync
 # Install with lint/test tools
 uv sync --extra dev
 
-# Tests (default implementation is still Python)
+# Tests (default implementation is Rust)
 uv run pytest
-SYMSIGHT_IMPL=rust uv run pytest
+uv sync --extra test --extra legacy
+SYMSIGHT_IMPL=python uv run pytest
 
-# Owner soak (not in CI): TUI on the Rust core
-# SYMSIGHT_IMPL=rust uv run symsight tui
+# TUI (Textual; uses the Rust core by default)
+uv run symsight tui
 
 # Lint
 uv run ruff check src tests
@@ -40,7 +41,7 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 
-# Optional native CLI (Python remains the default via uv)
+# Native clap binary (headless; `tui` still needs the Python package)
 cargo run -p symsight-cli -- brands
 cargo run -p symsight-cli -- check
 cargo run -p symsight-cli -- tui   # prints a hint; use uv run symsight tui
@@ -70,16 +71,16 @@ cp .env.example .env
 
 | Path | Role |
 |------|------|
-| `src/symsight/` | Library (CLI, generate, brands, TUI) |
-| `crates/symsight-core/` | Rust domain crate (Python is still the user-facing implementation) |
-| `crates/symsight-cli/` | Optional clap binary (`cargo run -p symsight-cli`); flags match `uv run symsight` |
-| `crates/symsight-py/` | PyO3 cdylib published as `symsight._native`; selected by `SYMSIGHT_IMPL` |
+| `src/symsight/` | Python package (shims + Textual TUI; `_py/` is the fallback) |
+| `crates/symsight-core/` | Rust domain crate (default implementation) |
+| `crates/symsight-cli/` | Native clap binary (`cargo run -p symsight-cli`) |
+| `crates/symsight-py/` | PyO3 cdylib published as `symsight._native` |
 | `config/brands/` | Brand YAML (example only in-repo) |
 | `content/drafts/`, `content/final/` | Local drafts (usually not released) |
 | `scripts/` | Thin entrypoints wrapping the library |
 | `tests/` | Pytest suite |
 
-The Python package version is `[project].version` in `pyproject.toml`. The Cargo workspace version in the root `Cargo.toml` must stay equal to it until the later maturin cutover. Release-meta still reads `pyproject.toml` only.
+Version is single-sourced from `[workspace.package].version` in the root `Cargo.toml`. `pyproject.toml` uses `dynamic = ["version"]` (maturin reads the cdylib crate). Release-meta reads the workspace version.
 
 ## Branch model
 
@@ -100,14 +101,14 @@ feature/* ──► develop ──► stage ──► release/vX.Y.Z ──► m
 
 3. **Release preparation**
    - Create `release/vX.Y.Z` from `stage` (or from `develop` if stage is not updated yet).
-   - Bump `version` in `pyproject.toml`.
+   - Bump `[workspace.package].version` in the root `Cargo.toml`.
    - Update `CHANGELOG.md` with a `## [X.Y.Z]` section (required by release metadata).
    - Open a PR from `release/vX.Y.Z` → `main`.
 
 4. **Release**
    - Merge the PR to `main` when **Release** checks are green.
    - **Manually** create and push the annotated tag `vX.Y.Z` on the merge commit (tags are not auto-created in CI).
-   - Tag push runs [`.github/workflows/release.yml`](.github/workflows/release.yml): full validation, then **GitHub Release** with sdist + wheel. **PyPI is paused** until `publish-pypi` is re-enabled.
+   - Tag push runs [`.github/workflows/release.yml`](.github/workflows/release.yml): full validation, then **GitHub Release** with manylinux sdist/wheel and a linux x86_64 GNU `symsight` binary. **PyPI is paused** until `publish-pypi` is re-enabled.
 
 ### Example first cut (`v0.1.0`)
 
@@ -117,7 +118,7 @@ git checkout stage   # or develop if stage lags
 git pull
 git checkout -b release/v0.1.0
 
-# Ensure pyproject.toml version is 0.1.0 and CHANGELOG has ## [0.1.0]
+# Ensure Cargo.toml workspace version is 0.1.0 and CHANGELOG has ## [0.1.0]
 # open PR → main, merge when green
 
 git checkout main && git pull
@@ -135,13 +136,13 @@ git push origin v0.1.0
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`, `main` | Ruff + pytest (3.11, 3.12) + Rust fmt/clippy/test |
-| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `main` / `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, `uv build`; **publish** only on tags |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`, `main` | Ruff + pytest (Rust default + Python fallback) + Rust fmt/clippy/test |
+| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `main` / `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
 
 Release metadata enforces:
 
-- `release/vX.Y.Z` branch name matches `pyproject.toml` version.
-- Tag `vX.Y.Z` matches `pyproject.toml` version.
+- `release/vX.Y.Z` branch name matches `Cargo.toml` workspace version.
+- Tag `vX.Y.Z` matches `Cargo.toml` workspace version.
 - `CHANGELOG.md` contains `## [X.Y.Z]` for tags and `release/*` branches.
 
 ## Bootstrap remote branches (once)

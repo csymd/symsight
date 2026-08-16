@@ -73,15 +73,15 @@ jobs:
       - name: Run tests
         run: uv run --python ${{ matrix.python-version }} pytest
 
-  test-rust:
-    name: Pytest rust impl (Python ${{ matrix.python-version }})
+  test-python:
+    name: Pytest python fallback (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]
     env:
-      SYMSIGHT_IMPL: rust
+      SYMSIGHT_IMPL: python
     steps:
       - uses: actions/checkout@v4
 
@@ -98,10 +98,10 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
 
-      - name: Sync project + test deps
-        run: uv sync --extra test --python ${{ matrix.python-version }}
+      - name: Sync project + test + legacy deps
+        run: uv sync --extra test --extra legacy --python ${{ matrix.python-version }}
 
-      - name: Run tests (Rust impl)
+      - name: Run tests (Python fallback)
         run: uv run --python ${{ matrix.python-version }} pytest
 
   rust:
@@ -130,7 +130,7 @@ jobs:
   ci-ready:
     name: CI checks passed
     runs-on: ubuntu-latest
-    needs: [lint, test, test-rust, rust]
+    needs: [lint, test, test-python, rust]
     if: always()
     steps:
       - name: Require all CI jobs
@@ -138,10 +138,10 @@ jobs:
           set -euo pipefail
           echo "lint: ${{ needs.lint.result }}"
           echo "test: ${{ needs.test.result }}"
-          echo "test-rust: ${{ needs.test-rust.result }}"
+          echo "test-python: ${{ needs.test-python.result }}"
           echo "rust: ${{ needs.rust.result }}"
           test "${{ needs.lint.result }}" = "success"
           test "${{ needs.test.result }}" = "success"
-          test "${{ needs.test-rust.result }}" = "success"
+          test "${{ needs.test-python.result }}" = "success"
           test "${{ needs.rust.result }}" = "success"
           echo "All CI jobs passed."
