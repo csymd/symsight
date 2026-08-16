@@ -36,6 +36,11 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 
+# Optional native CLI (Python remains the default via uv)
+cargo run -p symsight-cli -- brands
+cargo run -p symsight-cli -- check
+cargo run -p symsight-cli -- tui   # prints a hint; use uv run symsight tui
+
 # CLI / TUI
 uv run symsight brands
 uv run symsight generate --brand example-writer --type general --topic "deep work"
@@ -62,7 +67,8 @@ cp .env.example .env
 | Path | Role |
 |------|------|
 | `src/symsight/` | Library (CLI, generate, brands, TUI) |
-| `crates/symsight-core/` | Rust domain crate (scaffold; Python is still the implementation) |
+| `crates/symsight-core/` | Rust domain crate (Python is still the user-facing implementation) |
+| `crates/symsight-cli/` | Optional clap binary (`cargo run -p symsight-cli`); flags match `uv run symsight` |
 | `config/brands/` | Brand YAML (example only in-repo) |
 | `content/drafts/`, `content/final/` | Local drafts (usually not released) |
 | `scripts/` | Thin entrypoints wrapping the library |
