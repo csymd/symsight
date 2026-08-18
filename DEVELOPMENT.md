@@ -37,7 +37,7 @@ uv run ruff check src tests
 uv run mypy src
 
 # Rust workspace (fmt, clippy, tests)
-cargo fmt --all -- --check
+cargo +nightly fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 
@@ -62,7 +62,7 @@ cp .env.example .env
 ## Code style
 
 - Run `uv run ruff check src tests` before committing.
-- For Rust changes, also run `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test --workspace`.
+- For Rust changes, also run `cargo +nightly fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test --workspace`. Canonical rustfmt is nightly (family CI); `rust-toolchain.toml` stays stable for build.
 - Keep changes focused; one logical change per PR is preferred.
 - Generation tests that hit the network should stay mocked (see `tests/test_generate_mocked.py`).
 - Text helpers are locked by `tests/golden/*.json` (consumed by both `cargo test` and pytest). Regenerate only with `uv run python scripts/export_goldens.py` when you intend to change the Python contract — not after `textutil` becomes a Rust shim.
@@ -101,7 +101,7 @@ feature/* ──► develop ──► stage ──► release/vX.Y.Z ──► m
 
 3. **Release preparation**
    - Create `release/vX.Y.Z` from `stage` (or from `develop` if stage is not updated yet).
-   - Bump `[workspace.package].version` in the root `Cargo.toml`.
+   - Bump `[workspace.package].version` (`./scripts/bump-version.sh patch --changelog`).
    - Update `CHANGELOG.md` with a `## [X.Y.Z]` section (required by release metadata).
    - Open a PR from `release/vX.Y.Z` → `main`.
 
@@ -136,7 +136,7 @@ git push origin v0.1.0
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop` | Ruff + pytest (Rust default + Python fallback) + Rust fmt/clippy/test |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | Ruff + pytest (Rust default + Python fallback) + nightly rustfmt + clippy/test |
 | [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
 
 Release metadata enforces:

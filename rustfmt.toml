@@ -1,2 +1,9 @@
+# Manual: cargo +nightly fmt
+# Check:  cargo +nightly fmt --all -- --check
+#
+# Family CI uses nightly rustfmt (same as SymWorx / SymKit). Default
+# rust-toolchain.toml stays stable for build / clippy. Width stays 100
+# to match ruff; edition matches the crate (2021).
+
 edition = "2021"
 max_width = 100
