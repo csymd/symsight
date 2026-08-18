@@ -15,8 +15,8 @@ Security fixes are applied on a best-effort basis to the latest release on the d
 
 Please report vulnerabilities privately via one of:
 
-1. **GitHub Security Advisories** — use [Report a vulnerability](https://github.com/bitterbeta/symsight/security/advisories/new) on this repository (preferred when available).
-2. **Email** the maintainers through the contact listed on the [GitHub org / repository](https://github.com/bitterbeta/symsight) if advisories are unavailable.
+1. **GitHub Security Advisories** — use [Report a vulnerability](https://github.com/csymd/symsight/security/advisories/new) on this repository (preferred when available).
+2. **Email** the maintainers through the contact listed on the [GitHub org / repository](https://github.com/csymd/symsight) if advisories are unavailable.
 
 Include:
 

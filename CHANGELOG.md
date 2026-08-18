@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Package metadata URLs and Apache-2.0 license fields for public GitHub / PyPI
 
-## [0.1.0] - 2026-MM-DD
+## [0.1.0] - 2026-08-16
 
 ### Added
 
@@ -50,5 +50,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version Links
 
-[Unreleased]: https://github.com/bitterbeta/symsight/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/bitterbeta/symsight/releases/tag/v0.1.0
+[Unreleased]: https://github.com/csymd/symsight/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/csymd/symsight/releases/tag/v0.1.0
