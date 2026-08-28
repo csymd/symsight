@@ -98,7 +98,7 @@ Version bumps are a **`develop` chore**, not a step on `release/vX.Y.Z`. Same mu
 
 2. **Version bump** (manual, on `develop`, before the cycle)  
    When the next release is `X.Y.Z`:
-   - `./scripts/bump-version.sh patch --changelog` (or `minor` / `set X.Y.Z`). The script rewrites `[workspace.package] version`, the `[workspace.dependencies]` `symsight-*` path+version pin (Cargo cannot inherit `version.workspace = true` there), `Cargo.lock` member versions, and changelog version links. Member crates stay on `version.workspace = true` and `symsight-core = { workspace = true }`.
+   - `./scripts/bump-version.sh patch --changelog` (or `minor` / `set X.Y.Z`). The script rewrites `[workspace.package] version`, the `[workspace.dependencies]` `symsight-*` path+version pin (Cargo cannot inherit `version.workspace = true` there), and `Cargo.lock` member versions. Member crates stay on `version.workspace = true` and `symsight-core = { workspace = true }`.
    - Fill in `CHANGELOG.md` under `## [X.Y.Z]` (required later by release metadata).
    - PR into `develop`. CI must be green.
 
@@ -116,7 +116,7 @@ Version bumps are a **`develop` chore**, not a step on `release/vX.Y.Z`. Same mu
    - Tag push runs [`.github/workflows/release.yml`](.github/workflows/release.yml): full validation, then **GitHub Release** (manylinux sdist/wheel and a linux x86_64 GNU `symsight` binary) **and** `publish-crates` (`symsight-core` then `symsight-cli` to crates.io). The two publish jobs are independent: a crates.io failure does not block the GitHub Release. **PyPI is paused** until `publish-pypi` is re-enabled.
    - crates.io needs GitHub Environment `crates-io` with secret `CARGO_REGISTRY_TOKEN`. First publish of a version can also be done by hand (`cargo publish -p symsight-core` then `-p symsight-cli`); later tags use the workflow.
 
-`./scripts/bump-version.sh` with no args is a **consistency check** (workspace pin, lockfile, changelog links). Day-to-day `rust-checks` and Release `rust-checks` run it so a missed pin fails CI. It does not bump.
+`./scripts/bump-version.sh` with no args is a **consistency check** (workspace pin and lockfile). Day-to-day `rust-checks` and Release `rust-checks` run it so a missed pin fails CI. It does not bump. A missing `## [X.Y.Z]` heading is reported but only **release-meta** requires it.
 
 ### Example (`v0.2.1` after a develop bump)
 
