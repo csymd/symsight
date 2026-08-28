@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from symsight._py.textutil import is_safe_path_component
 from symsight.models import ContentFormat, Draft, DraftMeta
 from symsight.textutil import char_count, slugify, word_count
 
@@ -156,6 +157,8 @@ def set_status(path: Path, status: str) -> None:
 
 
 def unique_draft_path(drafts_dir: Path, stem: str) -> Path:
+    if not is_safe_path_component(stem):
+        raise ValueError(f"unsafe draft stem: {stem!r}")
     drafts_dir.mkdir(parents=True, exist_ok=True)
     path = drafts_dir / f"{stem}.md"
     n = 2

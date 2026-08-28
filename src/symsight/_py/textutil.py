@@ -26,6 +26,13 @@ def char_count(text: str) -> int:
     return len(text)
 
 
+def is_safe_path_component(name: str) -> bool:
+    """True when ``name`` is a single relative path segment (no ``/``, ``..``, or drive)."""
+    if not name or name in {".", ".."}:
+        return False
+    return not any(sep in name for sep in ("/", "\\", ":", "\0"))
+
+
 def slugify(text: str, max_len: int = 60) -> str:
     s = text.lower().strip()
     s = re.sub(r"[^a-z0-9]+", "-", s)

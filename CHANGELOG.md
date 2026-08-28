@@ -10,41 +10,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Default implementation is Rust; `SYMSIGHT_IMPL=python` is the one-release fallback (`--extra legacy`)
-- GitHub Release ships a manylinux wheel/sdist and `symsight-v*-x86_64-unknown-linux-gnu`
-- TUI construct smoke tests (Textual is not driven in CI)
-- PyO3 module `symsight._native` and `SYMSIGHT_IMPL=python|rust` shims (default remains Python)
-- Optional native `symsight` clap binary (`cargo run -p symsight-cli`); `uv run symsight` is unchanged
-- Rust `symsight-core` generate orchestration with injectable `LlmClient` (mocked in tests)
-- Rust `symsight-core` AppConfig merge and prompt builders with Python snapshots
-- Rust `symsight-core` draft I/O, finalize, and brandcheck with front-matter goldens
-- Rust `symsight-core` textutil port with committed golden vectors shared by pytest
-- Rust `symsight-core` Brand models and YAML loader with fixture parity tests
-- Cargo workspace scaffold (`crates/symsight-core`) and Rust fmt/clippy/test CI job
-- Root `SECURITY.md` and `CODE_OF_CONDUCT.md`
-- `examples/` sample business brand, mini-project workspace, and static draft shapes
-- `NOTICE.md` with PalEm Dynamics LLC attribution
+- `scripts/bump-version.sh` for lockstep Cargo workspace version bumps
+- Dependabot config for cargo, uv/pip, and GitHub Actions
 
 ### Changed
 
-- Package version is sourced from the Cargo workspace (`pyproject.toml` is `dynamic = ["version"]`)
-- Brandcheck skip dirs include `target` and `dist` so Cargo / pack artifacts are not scanned
-- File headers and `LICENSE` appendix use `Copyright (c) 2026, PalEm Dynamics LLC`
 - Day-to-day CI runs on `develop` only; Release validation runs on PRs into `main`, pushes to `release/**`, and tags `v*` (no second full run on push to `main`)
+- Canonical rustfmt in CI is nightly (stable toolchain still builds)
+- Package, SECURITY, and changelog URLs use `github.com/csymd/symsight`
 
-### Fixed
+### Security
 
-- Package metadata URLs and Apache-2.0 license fields for public GitHub / PyPI
+- Redact `XAI_API_KEY` from `AppConfig` Debug/repr and LLM HTTP error bodies
+- Reject path separators / `..` in draft stems and `--brand` ids
+- Python fallback LLM client uses a 120s timeout and requires HTTPS (localhost HTTP allowed)
+- Pin GitHub Actions to commit SHAs; checkout does not persist credentials
 
 ## [0.1.0] - 2026-08-16
 
 ### Added
 
-- Initial release of **symsight**: brand-driven insight generator for articles and social posts
+- Initial release of **symsight**: brand-driven articles and social posts from YAML brand files
+- CLI (`generate`, `finalize`, `check`, `brands`, `tui`) and Textual TUI
+- Rust domain core (`symsight-core`) with Python bindings (`symsight._native` via PyO3 / maturin)
+- Native clap binary (`cargo run -p symsight-cli`); GitHub Release also ships `symsight-v*-x86_64-unknown-linux-gnu`
+- GitHub Release artifacts: manylinux wheel + sdist (PyPI publish remains paused)
+- Example brand, mini-project workspace, `SECURITY.md`, `CODE_OF_CONDUCT.md`, and `NOTICE.md`
+
+### Changed
+
+- Default implementation is Rust; `SYMSIGHT_IMPL=python` is a one-release fallback (`uv sync --extra legacy`)
+- Package version is sourced from the Cargo workspace (`pyproject.toml` is `dynamic = ["version"]`)
+- Brandcheck skip dirs include `target` and `dist` so Cargo / pack artifacts are not scanned
 
 ### Notes
 
-- `SymSight` will remain in active development under a beta tag until the API has been deemed stable. 
+- `SymSight` is 0.x / Beta (`Development Status :: 4 - Beta`). The API may change until 1.0.
+- Generation tests stay mocked; CI does not call the live xAI API.
 
 ---
 

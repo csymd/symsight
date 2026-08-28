@@ -10,6 +10,7 @@ use serde_yml::Value;
 
 use crate::error::BrandError;
 use crate::models::Brand;
+use crate::textutil::is_safe_path_component;
 
 /// Load a single brand YAML file.
 pub fn load_brand_file(path: impl AsRef<Path>) -> Result<Brand, BrandError> {
@@ -93,6 +94,9 @@ pub fn resolve_brand(
     let Some(brand_id) = brand_id.filter(|id| !id.is_empty()) else {
         return Err(BrandError::NotSpecified);
     };
+    if !is_safe_path_component(brand_id) {
+        return Err(BrandError::UnsafeId(brand_id.to_string()));
+    }
     let brands_dir = brands_dir.as_ref();
     for ext in [".yaml", ".yml"] {
         let candidate = brands_dir.join(format!("{brand_id}{ext}"));

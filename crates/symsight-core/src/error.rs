@@ -18,6 +18,8 @@ pub enum BrandError {
     Invalid { path: PathBuf, message: String },
     #[error("No brand specified (set active_brand, --brand, or --brand-file)")]
     NotSpecified,
+    #[error("Unsafe brand id {0:?}: must be a single path segment")]
+    UnsafeId(String),
     #[error("Brand '{brand_id}' not found in {brands_dir}. Available: {available}")]
     Unresolved {
         brand_id: String,

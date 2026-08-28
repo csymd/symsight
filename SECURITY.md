@@ -13,10 +13,12 @@ Security fixes are applied on a best-effort basis to the latest release on the d
 
 **Do not open a public GitHub issue for security-sensitive reports.**
 
-Please report vulnerabilities privately via one of:
+Please report vulnerabilities privately via **GitHub Security Advisories** —
+use [Report a vulnerability](https://github.com/csymd/symsight/security/advisories/new)
+on this repository.
 
-1. **GitHub Security Advisories** — use [Report a vulnerability](https://github.com/csymd/symsight/security/advisories/new) on this repository (preferred when available).
-2. **Email** the maintainers through the contact listed on the [GitHub org / repository](https://github.com/csymd/symsight) if advisories are unavailable.
+Private vulnerability reporting is the preferred channel once the repository is
+public. Until a maintainer mailbox is published, there is no email fallback.
 
 Include:
 

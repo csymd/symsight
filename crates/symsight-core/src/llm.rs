@@ -5,14 +5,43 @@
 //!
 //! Thin `reqwest` POST to `{base_url}/responses`. No official OpenAI crate.
 
-use std::sync::Mutex;
+use std::sync::{LazyLock, Mutex};
 use std::time::Duration;
 
+use regex::Regex;
 use serde_json::{json, Value};
 
 use crate::error::LlmError;
 
 const HTTP_TIMEOUT_SECS: u64 = 120;
+
+static XAI_KEY: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"xai-[A-Za-z0-9_-]+").expect("XAI_KEY"));
+static BEARER: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?i)(bearer\s+)\S+").expect("BEARER"));
+
+/// Strip API keys / bearer tokens from error text before it hits logs or stderr.
+pub fn redact_secrets(text: &str) -> String {
+    let text = XAI_KEY.replace_all(text, "xai-[redacted]");
+    BEARER.replace_all(&text, "${1}[redacted]").into_owned()
+}
+
+fn validate_base_url(base: &str) -> Result<(), LlmError> {
+    let trimmed = base.trim();
+    let lower = trimmed.to_ascii_lowercase();
+    if lower.starts_with("https://") {
+        return Ok(());
+    }
+    let http_ok = lower.starts_with("http://127.0.0.1")
+        || lower.starts_with("http://localhost")
+        || lower.starts_with("http://[::1]");
+    if http_ok {
+        return Ok(());
+    }
+    Err(LlmError::Http(
+        "SYMSIGHT_BASE_URL must be https:// (http is allowed only for localhost)".into(),
+    ))
+}
 
 #[derive(Debug, Clone)]
 pub struct CompletionRequest {
@@ -36,14 +65,16 @@ pub struct XaiClient {
 
 impl XaiClient {
     pub fn new(api_key: impl Into<String>, base_url: impl Into<String>) -> Result<Self, LlmError> {
+        let base_url = base_url.into();
+        validate_base_url(&base_url)?;
         let http = reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(HTTP_TIMEOUT_SECS))
             .use_rustls_tls()
             .build()
-            .map_err(|e| LlmError::Http(e.to_string()))?;
+            .map_err(|e| LlmError::Http(redact_secrets(&e.to_string())))?;
         Ok(Self {
             api_key: api_key.into(),
-            base_url: base_url.into(),
+            base_url,
             http,
         })
     }
@@ -68,13 +99,15 @@ impl LlmClient for XaiClient {
             .bearer_auth(&self.api_key)
             .json(&body)
             .send()
-            .map_err(|e| LlmError::Http(e.to_string()))?;
+            .map_err(|e| LlmError::Http(redact_secrets(&e.to_string())))?;
         let status = response.status();
         let value: Value = response
             .json()
-            .map_err(|e| LlmError::Http(format!("status {status}: {e}")))?;
+            .map_err(|e| LlmError::Http(redact_secrets(&format!("status {status}: {e}"))))?;
         if !status.is_success() {
-            return Err(LlmError::Http(format!("status {status}: {value}")));
+            return Err(LlmError::Http(redact_secrets(&format!(
+                "status {status}: {value}"
+            ))));
         }
         Ok(response_text(&value))
     }
@@ -148,5 +181,37 @@ impl LlmClient for ScriptedClient {
             return Ok(String::new());
         }
         Ok(queue.remove(0))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn redact_secrets_strips_xai_keys_and_bearer() {
+        assert_eq!(
+            redact_secrets("got xai-ABC123xyz from API"),
+            "got xai-[redacted] from API"
+        );
+        assert_eq!(
+            redact_secrets("Authorization: Bearer super-secret-token"),
+            "Authorization: Bearer [redacted]"
+        );
+    }
+
+    #[test]
+    fn rejects_cleartext_remote_http_base_url() {
+        let err = XaiClient::new("k", "http://example.com/v1")
+            .err()
+            .expect("cleartext remote http must fail");
+        assert!(err.to_string().contains("https://"), "{err}");
+    }
+
+    #[test]
+    fn allows_https_and_localhost_http() {
+        assert!(XaiClient::new("k", "https://api.x.ai/v1").is_ok());
+        assert!(XaiClient::new("k", "http://127.0.0.1:8080/v1").is_ok());
+        assert!(XaiClient::new("k", "http://localhost:8080/v1").is_ok());
     }
 }

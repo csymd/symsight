@@ -15,7 +15,7 @@ use indexmap::IndexMap;
 use regex::Regex;
 
 use crate::models::{ContentFormat, Draft, DraftMeta, FrontValue};
-use crate::textutil::{char_count, slugify, word_count};
+use crate::textutil::{char_count, is_safe_path_component, slugify, word_count};
 
 static DISCLAIMER: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\n---\s*\n+\*\*Disclaimer\.\*\*.*$").expect("DISCLAIMER"));
@@ -176,6 +176,12 @@ pub fn set_status(path: &Path, status: &str) -> io::Result<()> {
 }
 
 pub fn unique_draft_path(drafts_dir: &Path, stem: &str) -> io::Result<PathBuf> {
+    if !is_safe_path_component(stem) {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("unsafe draft stem: {stem:?}"),
+        ));
+    }
     fs::create_dir_all(drafts_dir)?;
     let mut path = drafts_dir.join(format!("{stem}.md"));
     let mut n = 2;

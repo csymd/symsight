@@ -33,15 +33,17 @@ pub use draft_io::{
 pub use error::{BrandError, ConfigError, FinalizeError, GenerateError, LlmError, TextError};
 pub use finalize::{finalize_draft, list_final};
 pub use generate::{generate_and_write, generate_content};
-pub use llm::{response_text, CompletionRequest, LlmClient, ScriptedClient, XaiClient};
+pub use llm::{
+    redact_secrets, response_text, CompletionRequest, LlmClient, ScriptedClient, XaiClient,
+};
 pub use models::{
     ArticleFormatSpec, Brand, ContentFormat, Draft, DraftMeta, FormatSpecs, FrontValue,
     GenerateRequest, SocialFormatSpec, TypeSpec,
 };
 pub use prompts::{length_rewrite_prompt, safe_format, system_prompt, user_prompt};
 pub use textutil::{
-    char_count, clean_body, extract_social_text, extract_title_body, is_plausible_title, slugify,
-    word_count,
+    char_count, clean_body, extract_social_text, extract_title_body, is_plausible_title,
+    is_safe_path_component, slugify, word_count,
 };
 
 /// Workspace package version, single-sourced from the root `Cargo.toml`.

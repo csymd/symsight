@@ -195,6 +195,15 @@ fn write_new_draft_social_matches_golden() {
 }
 
 #[test]
+fn unique_draft_path_rejects_traversal() {
+    let dir = tmp_dir();
+    let err = unique_draft_path(&dir, "../etc/passwd").unwrap_err();
+    assert_eq!(err.kind(), std::io::ErrorKind::InvalidInput);
+    let err = unique_draft_path(&dir, "..").unwrap_err();
+    assert_eq!(err.kind(), std::io::ErrorKind::InvalidInput);
+}
+
+#[test]
 fn unique_draft_path_adds_numeric_suffix() {
     let dir = tmp_dir();
     let first = unique_draft_path(&dir, "same").unwrap();
