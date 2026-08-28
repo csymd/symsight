@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-28
+
+### Added
+
+- `scripts/bump-version.sh` for lockstep Cargo workspace version bumps
+- `scripts/apply-github-rulesets.py` to install the family branch/tag rulesets once the repo is public
+
+### Changed
+
+- Day-to-day CI runs on `develop` only; Release validation runs on PRs into `main`, pushes to `release/**`, and tags `v*` (no second full run on push to `main`)
+- Canonical rustfmt in CI is nightly (stable toolchain still builds)
+- CI job ids match family develop checks: `fmt`, `rust-checks`, `python-bindings`
+- Package, SECURITY, and changelog URLs use `github.com/csymd/symsight`
+- `uv run symsight` with no subcommand prints help (was an argparse error)
+
+### Removed
+
+- Legacy Python domain fallback (`SYMSIGHT_IMPL=python`, `--extra legacy`, `src/symsight/_py/`)
+
+### Security
+
+- Redact `XAI_API_KEY` from `AppConfig` Debug/repr and LLM HTTP error bodies
+- Reject path separators / `..` in draft stems and `--brand` ids
+- Pin GitHub Actions to commit SHAs; checkout does not persist credentials
+- Bump `pyo3` to 0.29.2 (GHSA-36hh-v3qg-5jq4, GHSA-chgr-c6px-7xpp, GHSA-pph8-gcv7-4qj5)
+- Bump `serde_yml` to 0.0.13 (drops `libyml`; GHSA-gfxp-f68g-8x78, GHSA-hhw4-xg65-fp2x)
+
 ## [0.1.0] - 2026-08-16
 
 ### Added
@@ -27,12 +54,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Notes
 
-- `SymSight` remains in active development under a beta tag until the API is deemed stable.
+- `SymSight` is 0.x / Beta (`Development Status :: 4 - Beta`). The API may change until 1.0.
 - Generation tests stay mocked; CI does not call the live xAI API.
 
 ---
 
 ## Version Links
 
-[Unreleased]: https://github.com/csymd/symsight/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/csymd/symsight/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/csymd/symsight/releases/tag/v0.2.0
 [0.1.0]: https://github.com/csymd/symsight/releases/tag/v0.1.0

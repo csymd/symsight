@@ -6,10 +6,12 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use serde_yml::Value;
+#[allow(deprecated)]
+use serde_yml::{from_str, from_value, Value};
 
 use crate::error::BrandError;
 use crate::models::Brand;
+use crate::textutil::is_safe_path_component;
 
 /// Load a single brand YAML file.
 pub fn load_brand_file(path: impl AsRef<Path>) -> Result<Brand, BrandError> {
@@ -21,22 +23,22 @@ pub fn load_brand_file(path: impl AsRef<Path>) -> Result<Brand, BrandError> {
         path: path.to_path_buf(),
         message: err.to_string(),
     })?;
-    let mut raw: Value = serde_yml::from_str(&text).map_err(|err| BrandError::Invalid {
+    let mut raw: Value = from_str(&text).map_err(|err| BrandError::Invalid {
         path: path.to_path_buf(),
         message: err.to_string(),
     })?;
     let mapping = raw
         .as_mapping_mut()
         .ok_or_else(|| BrandError::NotAMapping(path.to_path_buf()))?;
-    if !mapping.contains_key(Value::String("id".into())) {
+    if !mapping.contains_key("id") {
         let stem = path
             .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("brand")
             .to_string();
-        mapping.insert(Value::String("id".into()), Value::String(stem));
+        mapping.insert("id", Value::String(stem));
     }
-    let mut brand: Brand = serde_yml::from_value(raw).map_err(|err| BrandError::Invalid {
+    let mut brand: Brand = from_value(raw).map_err(|err| BrandError::Invalid {
         path: path.to_path_buf(),
         message: err.to_string(),
     })?;
@@ -93,6 +95,9 @@ pub fn resolve_brand(
     let Some(brand_id) = brand_id.filter(|id| !id.is_empty()) else {
         return Err(BrandError::NotSpecified);
     };
+    if !is_safe_path_component(brand_id) {
+        return Err(BrandError::UnsafeId(brand_id.to_string()));
+    }
     let brands_dir = brands_dir.as_ref();
     for ext in [".yaml", ".yml"] {
         let candidate = brands_dir.join(format!("{brand_id}{ext}"));

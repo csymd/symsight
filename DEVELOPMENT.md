@@ -11,7 +11,7 @@ For agent/tooling guidelines, see [AGENTS.md](AGENTS.md). Contributors own all s
 - Python 3.11+ (3.12 recommended; CI matrix is 3.11 + 3.12)
 - [uv](https://docs.astral.sh/uv/)
 - A SpaceXAI / xAI API key for live generation (`XAI_API_KEY`)
-- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. The default implementation is Rust. `SYMSIGHT_IMPL=python` selects the legacy fallback (`uv sync --extra legacy`). `rust-toolchain.toml` pins `stable` and the extra components.
+- Rust 1.85+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. Domain logic is Rust. `rust-toolchain.toml` pins `stable` and the extra components.
 
 ## Common commands
 
@@ -22,10 +22,8 @@ uv sync
 # Install with lint/test tools
 uv sync --extra dev
 
-# Tests (default implementation is Rust)
+# Tests
 uv run pytest
-uv sync --extra test --extra legacy
-SYMSIGHT_IMPL=python uv run pytest
 
 # TUI (Textual; uses the Rust core by default)
 uv run symsight tui
@@ -37,7 +35,7 @@ uv run ruff check src tests
 uv run mypy src
 
 # Rust workspace (fmt, clippy, tests)
-cargo fmt --all -- --check
+cargo +nightly fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 
@@ -62,7 +60,7 @@ cp .env.example .env
 ## Code style
 
 - Run `uv run ruff check src tests` before committing.
-- For Rust changes, also run `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test --workspace`.
+- For Rust changes, also run `cargo +nightly fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test --workspace`. Canonical rustfmt is nightly (family CI); `rust-toolchain.toml` stays stable for build.
 - Keep changes focused; one logical change per PR is preferred.
 - Generation tests that hit the network should stay mocked (see `tests/test_generate_mocked.py`).
 - Text helpers are locked by `tests/golden/*.json` (consumed by both `cargo test` and pytest). Regenerate only with `uv run python scripts/export_goldens.py` when you intend to change the Python contract — not after `textutil` becomes a Rust shim.
@@ -71,7 +69,7 @@ cp .env.example .env
 
 | Path | Role |
 |------|------|
-| `src/symsight/` | Python package (shims + Textual TUI; `_py/` is the fallback) |
+| `src/symsight/` | Python package (CLI + Textual TUI; shims over `symsight._native`) |
 | `crates/symsight-core/` | Rust domain crate (default implementation) |
 | `crates/symsight-cli/` | Native clap binary (`cargo run -p symsight-cli`) |
 | `crates/symsight-py/` | PyO3 cdylib published as `symsight._native` |
@@ -94,14 +92,14 @@ feature/* ──► develop ──► stage ──► release/vX.Y.Z ──► m
 ```
 
 1. **Feature development** → merge to `develop`  
-   Day-to-day CI (ruff + pytest + Rust fmt/clippy/test) runs on push/PR to `develop` and `main`.
+   Day-to-day CI (ruff + pytest + Rust fmt/clippy/test) runs on push/PR to `develop` only.
 
 2. **Stage / early access** → fast-forward `develop` → `stage` when you want a promotion point.  
    Day-to-day CI does **not** run on `stage` (avoids double runs on FF). Pre-release tags (e.g. `v0.2.0-beta.1`) may be cut from here if needed.
 
 3. **Release preparation**
    - Create `release/vX.Y.Z` from `stage` (or from `develop` if stage is not updated yet).
-   - Bump `[workspace.package].version` in the root `Cargo.toml`.
+   - Bump `[workspace.package].version` (`./scripts/bump-version.sh patch --changelog`).
    - Update `CHANGELOG.md` with a `## [X.Y.Z]` section (required by release metadata).
    - Open a PR from `release/vX.Y.Z` → `main`.
 
@@ -136,8 +134,8 @@ git push origin v0.1.0
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`, `main` | Ruff + pytest (Rust default + Python fallback) + Rust fmt/clippy/test |
-| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `main` / `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | `fmt` + `rust-checks` + `python-bindings` (same job ids as SymWorx) |
+| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
 
 Release metadata enforces:
 
@@ -158,6 +156,16 @@ git checkout -b stage
 git push -u origin stage
 # optional: set default branch to develop in GitHub settings
 ```
+
+### Repository rulesets (once the repo is public)
+
+GitHub Free does not allow rulesets on private repositories. After making `csymd/symsight` public, apply the same rulesets as SymWorx / SymKit (org-admin bypass, so `git push --admin` still works):
+
+```bash
+./scripts/apply-github-rulesets.py
+```
+
+That creates `develop` (requires `fmt`, `rust-checks`, `python-bindings`, same job ids as SymWorx), `stage-main`, `release-branches`, `topic-no-force-push`, and `version-tags`. Re-running the script updates them in place.
 
 ## Related
 

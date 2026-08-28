@@ -223,6 +223,30 @@ fn require_api_key_reads_project_dotenv_and_errors_clearly() {
 }
 
 #[test]
+fn debug_redacts_api_key() {
+    let cfg = AppConfig {
+        xai_api_key: "xai-TESTSECRETNOTREAL".into(),
+        model: DEFAULT_MODEL.into(),
+        base_url: "https://api.x.ai/v1".into(),
+        active_brand: "example-writer".into(),
+        brands_dir: PathBuf::from("./config/brands"),
+        drafts_dir: PathBuf::from("./content/drafts"),
+        final_dir: PathBuf::from("./content/final"),
+        project_root: PathBuf::from("."),
+    };
+    let dumped = format!("{cfg:?}");
+    assert!(!dumped.contains("TESTSECRETNOTREAL"), "{dumped}");
+    assert!(dumped.contains("[redacted]"), "{dumped}");
+
+    let ov = ConfigOverrides {
+        xai_api_key: Some("xai-TESTSECRETNOTREAL".into()),
+        ..ConfigOverrides::default()
+    };
+    let ov_dumped = format!("{ov:?}");
+    assert!(!ov_dumped.contains("TESTSECRETNOTREAL"), "{ov_dumped}");
+}
+
+#[test]
 fn defaults_when_nothing_is_set() {
     let _lock = ENV_LOCK.lock().unwrap();
     let root = tmp_dir();

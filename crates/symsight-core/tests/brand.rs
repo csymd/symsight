@@ -205,6 +205,15 @@ fn resolve_missing_brand() {
 }
 
 #[test]
+fn resolve_rejects_unsafe_brand_id() {
+    let err = resolve_brand(Path::new("."), Some("../etc/passwd"), None).unwrap_err();
+    match err {
+        BrandError::UnsafeId(id) => assert_eq!(id, "../etc/passwd"),
+        other => panic!("expected UnsafeId, got {other}"),
+    }
+}
+
+#[test]
 fn resolve_requires_brand_id() {
     let err = resolve_brand(Path::new("."), None, None).unwrap_err();
     assert!(matches!(err, BrandError::NotSpecified));

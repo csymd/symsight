@@ -10,7 +10,7 @@ All changes must be owned by the human contributor, who reviews and maintains th
 
 | Path | Role |
 |------|------|
-| `src/symsight/` | Library (CLI, LLM, brands, TUI; shims over `_py/` or `_native`) |
+| `src/symsight/` | Library (CLI, TUI, Pydantic models; shims over `symsight._native`) |
 | `config/brands/` | Brand YAML (ship example only) |
 | `tests/` | Pytest (mock the LLM for unit tests) |
 | `.github/workflows/` | CI + release (SymWorx-compatible cycle) |
@@ -39,7 +39,6 @@ See [DEVELOPMENT.md](DEVELOPMENT.md).
 ```bash
 uv sync --extra dev
 uv run pytest
-SYMSIGHT_IMPL=python uv run pytest   # fallback; needs --extra legacy
 uv run ruff check src tests
 cargo test --workspace
 uv run symsight --help

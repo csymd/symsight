@@ -1,24 +1,21 @@
 # Copyright (c) 2026, PalEm Dynamics LLC
 # Licensed under the Apache License, Version 2.0.
-"""Default implementation is Rust unless SYMSIGHT_IMPL overrides it."""
+"""Domain implementation is the native Rust extension."""
 
 from __future__ import annotations
 
-import os
+import symsight._native as native
 
-import pytest
-
-from symsight._impl import impl_name, use_rust
-
-
-def test_default_impl_is_rust() -> None:
-    if os.environ.get("SYMSIGHT_IMPL"):
-        pytest.skip("SYMSIGHT_IMPL is set")
-    assert impl_name() == "rust"
-    assert use_rust() is True
+from symsight.brand import list_brands
+from symsight.config import find_project_root
 
 
-def test_explicit_python_fallback() -> None:
-    if os.environ.get("SYMSIGHT_IMPL", "").strip().lower() not in {"python", "py", "legacy"}:
-        pytest.skip("not running the Python fallback job")
-    assert use_rust() is False
+def test_native_extension_loads() -> None:
+    assert hasattr(native, "generate_and_write")
+    assert hasattr(native, "load_brand_file")
+
+
+def test_brands_round_trip_via_shim() -> None:
+    brands = list_brands(find_project_root() / "config" / "brands")
+    ids = {b.id for b in brands}
+    assert "example-writer" in ids

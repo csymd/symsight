@@ -8,6 +8,7 @@
 //! Do not treat `Cargo.toml` as a project-root marker.
 
 use std::collections::HashMap;
+use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -137,8 +138,16 @@ pub fn load_config_file(root: Option<&Path>) -> toml::Table {
     merged
 }
 
+fn redact_key(value: &str) -> &'static str {
+    if value.is_empty() {
+        ""
+    } else {
+        "[redacted]"
+    }
+}
+
 /// Optional CLI / caller overrides. `None` means “leave this key to files/env”.
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct ConfigOverrides {
     pub active_brand: Option<String>,
     pub brands_dir: Option<PathBuf>,
@@ -149,7 +158,21 @@ pub struct ConfigOverrides {
     pub xai_api_key: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+impl fmt::Debug for ConfigOverrides {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ConfigOverrides")
+            .field("active_brand", &self.active_brand)
+            .field("brands_dir", &self.brands_dir)
+            .field("drafts_dir", &self.drafts_dir)
+            .field("final_dir", &self.final_dir)
+            .field("model", &self.model)
+            .field("base_url", &self.base_url)
+            .field("xai_api_key", &self.xai_api_key.as_deref().map(redact_key))
+            .finish()
+    }
+}
+
+#[derive(Clone, PartialEq, Eq)]
 pub struct AppConfig {
     pub xai_api_key: String,
     pub model: String,
@@ -159,6 +182,21 @@ pub struct AppConfig {
     pub drafts_dir: PathBuf,
     pub final_dir: PathBuf,
     pub project_root: PathBuf,
+}
+
+impl fmt::Debug for AppConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AppConfig")
+            .field("xai_api_key", &redact_key(&self.xai_api_key))
+            .field("model", &self.model)
+            .field("base_url", &self.base_url)
+            .field("active_brand", &self.active_brand)
+            .field("brands_dir", &self.brands_dir)
+            .field("drafts_dir", &self.drafts_dir)
+            .field("final_dir", &self.final_dir)
+            .field("project_root", &self.project_root)
+            .finish()
+    }
 }
 
 impl AppConfig {
