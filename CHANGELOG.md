@@ -16,10 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Internal crates depend on `symsight-core` from `[workspace.dependencies]` (workspace-relative path); `bump-version.sh` keeps that pin, the lockfile, and changelog version links in lockstep with `[workspace.package] version`
 
-### Removed
-
-- `CODE_OF_CONDUCT.md`
-
 ## [0.2.0] - 2026-08-28
 
 ### Added
