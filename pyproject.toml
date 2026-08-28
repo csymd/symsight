@@ -38,9 +38,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-legacy = [
-    "openai>=1.40.0",
-]
 test = [
     "pytest>=8.0",
     "pytest-mock>=3.10",

@@ -11,7 +11,7 @@ For agent/tooling guidelines, see [AGENTS.md](AGENTS.md). Contributors own all s
 - Python 3.11+ (3.12 recommended; CI matrix is 3.11 + 3.12)
 - [uv](https://docs.astral.sh/uv/)
 - A SpaceXAI / xAI API key for live generation (`XAI_API_KEY`)
-- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. The default implementation is Rust. `SYMSIGHT_IMPL=python` selects the legacy fallback (`uv sync --extra legacy`). `rust-toolchain.toml` pins `stable` and the extra components.
+- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. Domain logic is Rust. `rust-toolchain.toml` pins `stable` and the extra components.
 
 ## Common commands
 
@@ -22,10 +22,8 @@ uv sync
 # Install with lint/test tools
 uv sync --extra dev
 
-# Tests (default implementation is Rust)
+# Tests
 uv run pytest
-uv sync --extra test --extra legacy
-SYMSIGHT_IMPL=python uv run pytest
 
 # TUI (Textual; uses the Rust core by default)
 uv run symsight tui
@@ -71,7 +69,7 @@ cp .env.example .env
 
 | Path | Role |
 |------|------|
-| `src/symsight/` | Python package (shims + Textual TUI; `_py/` is the fallback) |
+| `src/symsight/` | Python package (CLI + Textual TUI; shims over `symsight._native`) |
 | `crates/symsight-core/` | Rust domain crate (default implementation) |
 | `crates/symsight-cli/` | Native clap binary (`cargo run -p symsight-cli`) |
 | `crates/symsight-py/` | PyO3 cdylib published as `symsight._native` |
@@ -136,7 +134,7 @@ git push origin v0.1.0
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | Ruff + pytest (Rust default + Python fallback) + nightly rustfmt + clippy/test |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | Ruff + pytest + nightly rustfmt + clippy/test |
 | [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
 
 Release metadata enforces:

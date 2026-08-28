@@ -27,7 +27,7 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Project root for config resolution (default: auto)",
     )
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command", required=False)
 
     # generate
     g = sub.add_parser("generate", help="Generate a draft")
@@ -259,6 +259,9 @@ def cmd_tui(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    if not args.command:
+        parser.print_help()
+        return 0
     handlers = {
         "generate": cmd_generate,
         "finalize": cmd_finalize,
