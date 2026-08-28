@@ -15,7 +15,7 @@
 #      (path + version; Cargo forbids version.workspace = true there)
 #   3. Cargo.lock entries for workspace members (symsight-core,
 #      symsight-cli, symsight-py)
-#   4. CHANGELOG.md version links ([Unreleased] compare URL + [X.Y.Z] tag)
+#   4. CHANGELOG.md [X.Y.Z] tag link (insert if missing; no [Unreleased] URL)
 #   5. Optional CHANGELOG.md stub (--changelog)
 #
 # Does NOT touch:
@@ -240,19 +240,10 @@ report_versions() {
     if grep -Eq "^## \[${expected}\]" CHANGELOG.md; then
       echo "CHANGELOG.md: has ## [${expected}] section"
     else
-      echo "CHANGELOG.md: no ## [${expected}] section yet (use --changelog for a stub)"
-    fi
-    if grep -Fq "[Unreleased]: https://github.com/csymd/symsight/compare/v${expected}...HEAD" CHANGELOG.md; then
-      echo "CHANGELOG.md: [Unreleased] compare is v${expected}...HEAD"
-    else
-      echo "CHANGELOG.md: [Unreleased] compare is not v${expected}...HEAD"
-      ok=0
+      echo "CHANGELOG.md: no ## [${expected}] section yet (use --changelog for a stub; release CI requires it on release/* and tags)"
     fi
     if grep -Eq "^\[${expected}\]:" CHANGELOG.md; then
       echo "CHANGELOG.md: has [${expected}] tag link"
-    else
-      echo "CHANGELOG.md: missing [${expected}] tag link"
-      ok=0
     fi
   else
     echo "CHANGELOG.md: missing"
@@ -318,31 +309,20 @@ bump_changelog_links() {
   if [[ ! -f CHANGELOG.md ]]; then
     return 0
   fi
+  if grep -Eq "^\[${new}\]:" CHANGELOG.md; then
+    return 0
+  fi
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "CHANGELOG.md: would set [Unreleased] compare to v${new}...HEAD"
-    if ! grep -Eq "^\[${new}\]:" CHANGELOG.md; then
-      echo "CHANGELOG.md: would add [${new}] tag link"
-    fi
+    echo "CHANGELOG.md: would add [${new}] tag link"
     return 0
   fi
   local tmp
   tmp="$(mktemp)"
   awk -v new="$new" '
     BEGIN { inserted = 0 }
-    /^\[Unreleased\]:/ {
-      print "[Unreleased]: https://github.com/csymd/symsight/compare/v" new "...HEAD"
-      next
-    }
     /^\[[0-9]/ && !inserted {
-      if ($0 ~ "^\\[" new "\\]:") {
-        inserted = 1
-        print
-        next
-      }
       print "[" new "]: https://github.com/csymd/symsight/releases/tag/v" new
       inserted = 1
-      print
-      next
     }
     { print }
   ' CHANGELOG.md >"$tmp"
