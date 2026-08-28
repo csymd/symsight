@@ -11,7 +11,7 @@ For agent/tooling guidelines, see [AGENTS.md](AGENTS.md). Contributors own all s
 - Python 3.11+ (3.12 recommended; CI matrix is 3.11 + 3.12)
 - [uv](https://docs.astral.sh/uv/)
 - A SpaceXAI / xAI API key for live generation (`XAI_API_KEY`)
-- Rust 1.82+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. Domain logic is Rust. `rust-toolchain.toml` pins `stable` and the extra components.
+- Rust 1.85+ (stable) with `rustfmt` and `clippy` — required to install the package (`uv sync` builds `symsight._native` via maturin) and for Cargo tests. Domain logic is Rust. `rust-toolchain.toml` pins `stable` and the extra components.
 
 ## Common commands
 
