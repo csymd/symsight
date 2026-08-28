@@ -23,4 +23,4 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { workspace = true }
-symsight-core = { path = "../symsight-core", version = "0.2.0" }
+symsight-core = { workspace = true }

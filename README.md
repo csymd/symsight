@@ -120,7 +120,7 @@ uv run ruff check src tests
 ```
 
 Branch model and release cycle: `develop` → `stage` → `release/vX.Y.Z` → `main` → manual tag `vX.Y.Z`.  
-Details: [DEVELOPMENT.md](DEVELOPMENT.md) · [CHANGELOG.md](CHANGELOG.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Details: [DEVELOPMENT.md](DEVELOPMENT.md) · [CHANGELOG.md](CHANGELOG.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md).
 
 ## License
 

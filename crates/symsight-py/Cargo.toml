@@ -20,4 +20,4 @@ indexmap = { workspace = true }
 pyo3 = { workspace = true, features = ["extension-module"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
-symsight-core = { path = "../symsight-core", version = "0.2.0" }
+symsight-core = { workspace = true }

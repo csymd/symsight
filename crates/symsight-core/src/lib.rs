@@ -53,8 +53,52 @@ pub fn version() -> &'static str {
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
+    /// Parse the git-workspace root so this assertion survives version bumps.
+    /// Skips when the crate is tested outside the monorepo (crates.io sources
+    /// do not include the workspace `Cargo.toml`).
+    fn workspace_root_toml() -> Option<toml::Table> {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../Cargo.toml");
+        if !path.is_file() {
+            return None;
+        }
+        let text = std::fs::read_to_string(&path).ok()?;
+        toml::from_str(&text).ok()
+    }
+
     #[test]
     fn version_matches_workspace() {
-        assert_eq!(crate::version(), "0.2.0");
+        let Some(root) = workspace_root_toml() else {
+            return;
+        };
+        let workspace = root
+            .get("workspace")
+            .and_then(|v| v.as_table())
+            .expect("root Cargo.toml [workspace]");
+        let pkg_ver = workspace
+            .get("package")
+            .and_then(|v| v.as_table())
+            .and_then(|t| t.get("version"))
+            .and_then(|v| v.as_str())
+            .expect("[workspace.package] version");
+        assert_eq!(crate::version(), pkg_ver);
+
+        let core = workspace
+            .get("dependencies")
+            .and_then(|v| v.as_table())
+            .and_then(|t| t.get("symsight-core"))
+            .and_then(|v| v.as_table())
+            .expect("[workspace.dependencies] symsight-core");
+        assert_eq!(
+            core.get("path").and_then(|v| v.as_str()),
+            Some("crates/symsight-core"),
+            "internal crate must be a workspace-relative path dep"
+        );
+        assert_eq!(
+            core.get("version").and_then(|v| v.as_str()),
+            Some(pkg_ver),
+            "workspace.dependencies.symsight-core.version must stay in lockstep with workspace.package.version"
+        );
     }
 }
