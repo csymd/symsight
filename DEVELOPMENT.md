@@ -157,6 +157,16 @@ git push -u origin stage
 # optional: set default branch to develop in GitHub settings
 ```
 
+### Repository rulesets (once the repo is public)
+
+GitHub Free does not allow rulesets on private repositories. After making `csymd/symsight` public, apply the same rulesets as SymWorx / SymKit (org-admin bypass, so `git push --admin` still works):
+
+```bash
+./scripts/apply-github-rulesets.py
+```
+
+That creates `develop` (requires `CI checks passed`), `stage-main`, `release-branches`, `topic-no-force-push`, and `version-tags`. Re-running the script updates them in place.
+
 ## Related
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
