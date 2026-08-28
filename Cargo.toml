@@ -29,4 +29,4 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yml = "0.0.12"
 thiserror = "2"
-toml = { version = "0.8", features = ["parse", "display"] }
+toml = { version = "1.1", features = ["parse", "display"] }
