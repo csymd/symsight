@@ -195,36 +195,6 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
-  test-python:
-    name: Pytest python fallback
-    runs-on: ubuntu-latest
-    needs: release-meta
-    env:
-      SYMSIGHT_IMPL: python
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
-
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
-        with:
-          enable-cache: true
-
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Sync project + test + legacy deps
-        run: uv sync --extra test --extra legacy
-
-      - name: Run tests (Python fallback)
-        run: uv run pytest
-
   rust:
     name: Rust (fmt, clippy, test)
     runs-on: ubuntu-latest
@@ -320,7 +290,7 @@ jobs:
   release-ready:
     name: Release checks passed
     runs-on: ubuntu-latest
-    needs: [release-meta, lint, test, test-python, rust, build, build-native]
+    needs: [release-meta, lint, test, rust, build, build-native]
     if: always()
     steps:
       - name: Require all validation jobs
@@ -329,14 +299,12 @@ jobs:
           echo "release-meta: ${{ needs.release-meta.result }}"
           echo "lint: ${{ needs.lint.result }}"
           echo "test: ${{ needs.test.result }}"
-          echo "test-python: ${{ needs.test-python.result }}"
           echo "rust: ${{ needs.rust.result }}"
           echo "build: ${{ needs.build.result }}"
           echo "build-native: ${{ needs.build-native.result }}"
           test "${{ needs.release-meta.result }}" = "success"
           test "${{ needs.lint.result }}" = "success"
           test "${{ needs.test.result }}" = "success"
-          test "${{ needs.test-python.result }}" = "success"
           test "${{ needs.rust.result }}" = "success"
           test "${{ needs.build.result }}" = "success"
           test "${{ needs.build-native.result }}" = "success"

@@ -18,12 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Day-to-day CI runs on `develop` only; Release validation runs on PRs into `main`, pushes to `release/**`, and tags `v*` (no second full run on push to `main`)
 - Canonical rustfmt in CI is nightly (stable toolchain still builds)
 - Package, SECURITY, and changelog URLs use `github.com/csymd/symsight`
+- `uv run symsight` with no subcommand prints help (was an argparse error)
+
+### Removed
+
+- Legacy Python domain fallback (`SYMSIGHT_IMPL=python`, `--extra legacy`, `src/symsight/_py/`)
 
 ### Security
 
 - Redact `XAI_API_KEY` from `AppConfig` Debug/repr and LLM HTTP error bodies
 - Reject path separators / `..` in draft stems and `--brand` ids
-- Python fallback LLM client uses a 120s timeout and requires HTTPS (localhost HTTP allowed)
 - Pin GitHub Actions to commit SHAs; checkout does not persist credentials
 
 ## [0.1.0] - 2026-08-16

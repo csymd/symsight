@@ -12,13 +12,7 @@ uv sync
 cp .env.example .env   # set XAI_API_KEY from https://console.x.ai
 ```
 
-The domain core defaults to Rust. Rollback for one release:
-
-```bash
-uv sync --extra legacy
-SYMSIGHT_IMPL=python uv run pytest
-SYMSIGHT_IMPL=python uv run symsight brands
-```
+The domain core is Rust (`symsight._native`). The Python package is the `uv run symsight` CLI and Textual TUI.
 
 Headless native binary (no Python) after a GitHub Release, or locally:
 
@@ -121,7 +115,6 @@ tests/
 ```bash
 uv sync --extra dev
 uv run pytest
-SYMSIGHT_IMPL=python uv run pytest   # fallback (needs --extra legacy)
 uv run ruff check src tests
 ```
 
@@ -137,5 +130,5 @@ Copyright (c) 2026, PalEm Dynamics LLC.
 ## Notes
 
 - Generation uses SpaceXAI / xAI (`XAI_API_KEY`, `https://api.x.ai/v1`, default model `grok-4.5`).
-- The default implementation is Rust (`SYMSIGHT_IMPL=rust`). Set `SYMSIGHT_IMPL=python` for the legacy fallback.
+- Domain logic is Rust (`symsight._native`). The Textual TUI remains Python.
 - Finalize is **markdown only** (move/copy).
