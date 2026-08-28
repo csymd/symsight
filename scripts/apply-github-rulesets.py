@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026, PalEm Dynamics LLC
 # Licensed under the Apache License, Version 2.0.
-"""Create or update repository rulesets to match SymWorx / SymKit.
+"""Create or update repository rulesets.
 
 GitHub Free does not enforce rulesets on private repos. Run this once after
 the repository is public (or on a plan that allows private rulesets):
