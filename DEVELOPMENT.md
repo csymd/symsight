@@ -106,7 +106,8 @@ feature/* ──► develop ──► stage ──► release/vX.Y.Z ──► m
 4. **Release**
    - Merge the PR to `main` when **Release** checks are green.
    - **Manually** create and push the annotated tag `vX.Y.Z` on the merge commit (tags are not auto-created in CI).
-   - Tag push runs [`.github/workflows/release.yml`](.github/workflows/release.yml): full validation, then **GitHub Release** with manylinux sdist/wheel and a linux x86_64 GNU `symsight` binary. **PyPI is paused** until `publish-pypi` is re-enabled.
+   - Tag push runs [`.github/workflows/release.yml`](.github/workflows/release.yml): full validation, then **GitHub Release** (manylinux sdist/wheel and a linux x86_64 GNU `symsight` binary) **and** `publish-crates` (`symsight-core` then `symsight-cli` to crates.io). The two publish jobs are independent: a crates.io failure does not block the GitHub Release. **PyPI is paused** until `publish-pypi` is re-enabled.
+   - crates.io needs GitHub Environment `crates-io` with secret `CARGO_REGISTRY_TOKEN`. First publish of a version can also be done by hand (`cargo publish -p symsight-core` then `-p symsight-cli`); later tags use the workflow.
 
 ### Example first cut (`v0.1.0`)
 
@@ -135,7 +136,7 @@ git push origin v0.1.0
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
 | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | `fmt` + `rust-checks` + `python-bindings` (same job ids as SymWorx) |
-| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
+| [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, fmt, rust-checks, python-bindings, manylinux wheel, native binary; **GitHub Release + crates.io** only on tags |
 
 Release metadata enforces:
 
