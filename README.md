@@ -14,9 +14,10 @@ cp .env.example .env   # set XAI_API_KEY from https://console.x.ai
 
 The domain core is Rust (`symsight._native`). The Python package is the `uv run symsight` CLI and Textual TUI.
 
-Headless native binary (no Python) after a GitHub Release, or locally:
+Headless native binary (no Python) after a GitHub Release, from crates.io, or locally:
 
 ```bash
+cargo install symsight-cli   # installs the `symsight` binary
 cargo run -p symsight-cli -- brands
 ```
 
@@ -119,7 +120,7 @@ uv run ruff check src tests
 ```
 
 Branch model and release cycle: `develop` → `stage` → `release/vX.Y.Z` → `main` → manual tag `vX.Y.Z`.  
-Details: [DEVELOPMENT.md](DEVELOPMENT.md) · [CHANGELOG.md](CHANGELOG.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Details: [DEVELOPMENT.md](DEVELOPMENT.md) · [CHANGELOG.md](CHANGELOG.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md).
 
 ## License
 
