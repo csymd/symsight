@@ -20,10 +20,10 @@ All changes must be owned by the human contributor, who reviews and maintains th
 Same as SymWorx:
 
 1. Feature work → **`develop`** (day-to-day CI).
-2. Promote with FF **`develop` → `stage`** (no day-to-day CI on `stage`).
-3. Cut **`release/vX.Y.Z`**, bump `[workspace.package].version` in `Cargo.toml`, add `## [X.Y.Z]` to `CHANGELOG.md`.
-4. PR **`release/*` → `main`**; merge when Release checks are green.
-5. **Manually** tag `vX.Y.Z` on `main` (no auto-tag job). Tag runs publish (GitHub Release; PyPI paused).
+2. **Manual** version bump on `develop` when a release is next (`./scripts/bump-version.sh`, changelog `## [X.Y.Z]`). Not a release-cycle step.
+3. Promote with FF **`develop` → `stage`** (no day-to-day CI on `stage`).
+4. Cut **`release/vX.Y.Z`** from `stage` (version and changelog already match). PR **`release/*` → `main`**; merge when Release checks are green.
+5. **Manually** tag `vX.Y.Z` on `main` (no auto-tag job). Tag runs publish (GitHub Release; crates.io; PyPI paused).
 
 See [DEVELOPMENT.md](DEVELOPMENT.md).
 

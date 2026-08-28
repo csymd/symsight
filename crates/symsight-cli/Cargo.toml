@@ -8,6 +8,14 @@ authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
 description = "Command-line interface for the symsight insight generator"
+readme = "../../README.md"
+include = [
+    "src/**",
+    "Cargo.toml",
+    "../../LICENSE",
+    "../../NOTICE.md",
+    "../../README.md",
+]
 
 [[bin]]
 name = "symsight"
@@ -15,4 +23,4 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { workspace = true }
-symsight-core = { path = "../symsight-core", version = "0.2.0" }
+symsight-core = { workspace = true }
