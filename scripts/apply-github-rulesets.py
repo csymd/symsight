@@ -9,8 +9,8 @@ the repository is public (or on a plan that allows private rulesets):
     ./scripts/apply-github-rulesets.py
 
 Organization admins bypass (git push --admin / merge with admin), same as
-the family repos. Required check on develop is this repo's aggregate job
-name: "CI checks passed".
+the family repos. Develop required checks match SymWorx job ids:
+fmt, rust-checks, python-bindings.
 """
 
 from __future__ import annotations
@@ -60,7 +60,11 @@ RULESETS = [
                 "parameters": {
                     "strict_required_status_checks_policy": True,
                     "do_not_enforce_on_create": False,
-                    "required_status_checks": [{"context": "CI checks passed"}],
+                    "required_status_checks": [
+                        {"context": "fmt"},
+                        {"context": "rust-checks"},
+                        {"context": "python-bindings"},
+                    ],
                 },
             },
         ],

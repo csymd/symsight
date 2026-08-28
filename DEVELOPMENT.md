@@ -134,7 +134,7 @@ git push origin v0.1.0
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | Ruff + pytest + nightly rustfmt + clippy/test |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | push/PR → `develop`; dispatch | `fmt` + `rust-checks` + `python-bindings` (same job ids as SymWorx) |
 | [`.github/workflows/release.yml`](.github/workflows/release.yml) | PR → `main`; push `release/**` / tags `v*`; dispatch | Version + CHANGELOG gates, ruff, pytest, rust, manylinux wheel, native binary; **publish** only on tags |
 
 Release metadata enforces:
@@ -165,7 +165,7 @@ GitHub Free does not allow rulesets on private repositories. After making `csymd
 ./scripts/apply-github-rulesets.py
 ```
 
-That creates `develop` (requires `CI checks passed`), `stage-main`, `release-branches`, `topic-no-force-push`, and `version-tags`. Re-running the script updates them in place.
+That creates `develop` (requires `fmt`, `rust-checks`, `python-bindings`, same job ids as SymWorx), `stage-main`, `release-branches`, `topic-no-force-push`, and `version-tags`. Re-running the script updates them in place.
 
 ## Related
 

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Day-to-day CI runs on `develop` only; Release validation runs on PRs into `main`, pushes to `release/**`, and tags `v*` (no second full run on push to `main`)
 - Canonical rustfmt in CI is nightly (stable toolchain still builds)
+- CI job ids match family develop checks: `fmt`, `rust-checks`, `python-bindings`
 - Package, SECURITY, and changelog URLs use `github.com/csymd/symsight`
 - `uv run symsight` with no subcommand prints help (was an argparse error)
 
