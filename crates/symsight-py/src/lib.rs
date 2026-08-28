@@ -130,7 +130,7 @@ fn extract_meta(obj: &Bound<'_, PyAny>) -> PyResult<DraftMeta> {
 }
 
 fn front_from_py(obj: &Bound<'_, PyAny>) -> PyResult<IndexMap<String, FrontValue>> {
-    let dict = obj.downcast::<PyDict>()?;
+    let dict = obj.cast::<PyDict>()?;
     let mut out = IndexMap::new();
     for (k, v) in dict.iter() {
         let key: String = k.extract()?;
@@ -186,7 +186,7 @@ struct PyLlmClient {
 
 impl LlmClient for PyLlmClient {
     fn create_completion(&self, req: &CompletionRequest) -> Result<String, LlmError> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let kwargs = PyDict::new(py);
             kwargs
                 .set_item("model", &req.model)
@@ -566,7 +566,7 @@ fn generate_content_py(
             generate_content(&req, &cfg, Some(&adapter)).map_err(map_gen)?
         }
         _ => py
-            .allow_threads(|| generate_content(&req, &cfg, None))
+            .detach(|| generate_content(&req, &cfg, None))
             .map_err(map_gen)?,
     };
     Ok((title, body, to_json_obj(py, &meta)?))
@@ -590,7 +590,7 @@ fn generate_and_write_py(
             generate_and_write(&req, &cfg, drafts, Some(&adapter)).map_err(map_gen)?
         }
         _ => py
-            .allow_threads(|| generate_and_write(&req, &cfg, drafts, None))
+            .detach(|| generate_and_write(&req, &cfg, drafts, None))
             .map_err(map_gen)?,
     };
     Ok(path.display().to_string())

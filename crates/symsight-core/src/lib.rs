@@ -55,6 +55,6 @@ pub fn version() -> &'static str {
 mod tests {
     #[test]
     fn version_matches_workspace() {
-        assert_eq!(crate::version(), "0.1.0");
+        assert_eq!(crate::version(), "0.2.0");
     }
 }

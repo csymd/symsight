@@ -7,7 +7,7 @@ Voice, firm name, disclaimers, forbidden terms, and content-type prompts live in
 ## Setup
 
 ```bash
-# Rust 1.82+ is required: uv sync compiles the native extension.
+# Rust 1.85+ is required: uv sync compiles the native extension.
 uv sync
 cp .env.example .env   # set XAI_API_KEY from https://console.x.ai
 ```

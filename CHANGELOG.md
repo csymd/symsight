@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Redact `XAI_API_KEY` from `AppConfig` Debug/repr and LLM HTTP error bodies
 - Reject path separators / `..` in draft stems and `--brand` ids
 - Pin GitHub Actions to commit SHAs; checkout does not persist credentials
+- Bump `pyo3` to 0.29.2 (GHSA-36hh-v3qg-5jq4, GHSA-chgr-c6px-7xpp, GHSA-pph8-gcv7-4qj5)
+- Bump `serde_yml` to 0.0.13 (drops `libyml`; GHSA-gfxp-f68g-8x78, GHSA-hhw4-xg65-fp2x)
 
 ## [0.1.0] - 2026-08-16
 
