@@ -33,7 +33,6 @@ Do **not** open feature PRs straight to `main`. Releases follow the same cycle a
 
 Details: [DEVELOPMENT.md](DEVELOPMENT.md#branch-model).
 
-## Code of Conduct
+## Security
 
-This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md).  
 To report a security issue, see [SECURITY.md](SECURITY.md) (not public issues).

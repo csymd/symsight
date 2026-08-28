@@ -78,7 +78,7 @@ cp .env.example .env
 | `scripts/` | Thin entrypoints wrapping the library |
 | `tests/` | Pytest suite |
 
-Version is single-sourced from `[workspace.package].version` in the root `Cargo.toml`. `pyproject.toml` uses `dynamic = ["version"]` (maturin reads the cdylib crate). Release-meta reads the workspace version.
+Version is single-sourced from `[workspace.package].version` in the root `Cargo.toml`. Members use `version.workspace = true`. Internal path deps (`symsight-core`) live once under `[workspace.dependencies]` (workspace-relative path + version pin — Cargo strips the path on publish and forbids `version.workspace = true` there). `pyproject.toml` uses `dynamic = ["version"]` (maturin reads the cdylib crate). Release-meta and `./scripts/bump-version.sh` read the workspace version.
 
 ## Branch model
 
@@ -87,48 +87,59 @@ Same as SymWorx:
 ```
 feature/* ──► develop ──► stage ──► release/vX.Y.Z ──► main ──► tag vX.Y.Z
                  │           │              │             │
-              day-to-day   FF only     release prep    publish
-                 CI        (no CI)     + validation    on tag
+              day-to-day   FF only      validation     publish
+                 CI        (no CI)     (no bump)       on tag
 ```
+
+Version bumps are a **`develop` chore**, not a step on `release/vX.Y.Z`. Same muscle memory as SymWorx: land the number on `develop`, then promote that SHA.
 
 1. **Feature development** → merge to `develop`  
    Day-to-day CI (ruff + pytest + Rust fmt/clippy/test) runs on push/PR to `develop` only.
 
-2. **Stage / early access** → fast-forward `develop` → `stage` when you want a promotion point.  
+2. **Version bump** (manual, on `develop`, before the cycle)  
+   When the next release is `X.Y.Z`:
+   - `./scripts/bump-version.sh patch --changelog` (or `minor` / `set X.Y.Z`). The script rewrites `[workspace.package] version`, the `[workspace.dependencies]` `symsight-*` path+version pin (Cargo cannot inherit `version.workspace = true` there), `Cargo.lock` member versions, and changelog version links. Member crates stay on `version.workspace = true` and `symsight-core = { workspace = true }`.
+   - Fill in `CHANGELOG.md` under `## [X.Y.Z]` (required later by release metadata).
+   - PR into `develop`. CI must be green.
+
+3. **Stage / early access** → fast-forward `develop` → `stage` when you want a promotion point.  
    Day-to-day CI does **not** run on `stage` (avoids double runs on FF). Pre-release tags (e.g. `v0.2.0-beta.1`) may be cut from here if needed.
 
-3. **Release preparation**
+4. **Release branch** (no bump)
    - Create `release/vX.Y.Z` from `stage` (or from `develop` if stage is not updated yet).
-   - Bump `[workspace.package].version` (`./scripts/bump-version.sh patch --changelog`).
-   - Update `CHANGELOG.md` with a `## [X.Y.Z]` section (required by release metadata).
+   - Branch name must already match `[workspace.package] version` and `CHANGELOG.md` must have `## [X.Y.Z]` (`release-meta` fails otherwise).
    - Open a PR from `release/vX.Y.Z` → `main`.
 
-4. **Release**
+5. **Release**
    - Merge the PR to `main` when **Release** checks are green.
    - **Manually** create and push the annotated tag `vX.Y.Z` on the merge commit (tags are not auto-created in CI).
    - Tag push runs [`.github/workflows/release.yml`](.github/workflows/release.yml): full validation, then **GitHub Release** (manylinux sdist/wheel and a linux x86_64 GNU `symsight` binary) **and** `publish-crates` (`symsight-core` then `symsight-cli` to crates.io). The two publish jobs are independent: a crates.io failure does not block the GitHub Release. **PyPI is paused** until `publish-pypi` is re-enabled.
    - crates.io needs GitHub Environment `crates-io` with secret `CARGO_REGISTRY_TOKEN`. First publish of a version can also be done by hand (`cargo publish -p symsight-core` then `-p symsight-cli`); later tags use the workflow.
 
-### Example first cut (`v0.1.0`)
+`./scripts/bump-version.sh` with no args is a **consistency check** (workspace pin, lockfile, changelog links). Day-to-day `rust-checks` and Release `rust-checks` run it so a missed pin fails CI. It does not bump.
+
+### Example (`v0.2.1` after a develop bump)
 
 ```bash
-# After the project lands on develop and is promoted:
-git checkout stage   # or develop if stage lags
-git pull
-git checkout -b release/v0.1.0
+# Version + changelog already on develop (e.g. chore/bump-version merged).
+git checkout stage && git pull
+git merge --ff-only origin/develop
+git push origin stage
 
-# Ensure Cargo.toml workspace version is 0.1.0 and CHANGELOG has ## [0.1.0]
+git checkout -b release/v0.2.1
+git push -u origin release/v0.2.1
 # open PR → main, merge when green
 
 git checkout main && git pull
-git tag -a v0.1.0 -m "v0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.1 -m "v0.2.1"
+git push origin v0.2.1
 ```
 
 ### Versioning
 
 - Semantic Versioning (SemVer).
 - Pre-releases (e.g. `0.2.0-beta.1`, `0.2.0-rc.1`) may be tagged from `stage` or a release branch; mark them as prerelease in GitHub (`-` in the version).
+- Bump on `develop` first; do not bump on `release/vX.Y.Z`.
 - Final releases are cut from `release/vX.Y.Z` merged into `main`, then **manually** tagged.
 
 ## CI / release automation
