@@ -88,6 +88,7 @@ uv run python scripts/tui.py
 | `f` | Finalize (move to final dir) |
 | `r` | Refresh draft list |
 | `,` | Settings (drafts/final/brand paths) |
+| `?` | Help |
 | `q` | Quit |
 
 ## Examples

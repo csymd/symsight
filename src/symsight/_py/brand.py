@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from symsight._py.textutil import is_safe_path_component
 from symsight.models import Brand
 
 
@@ -61,6 +62,8 @@ def resolve_brand(
 
     if not brand_id:
         raise BrandError("No brand specified (set active_brand, --brand, or --brand-file)")
+    if not is_safe_path_component(brand_id):
+        raise BrandError(f"Unsafe brand id {brand_id!r}: must be a single path segment")
 
     # Exact file stem match
     for ext in (".yaml", ".yml"):

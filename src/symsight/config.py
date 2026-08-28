@@ -66,6 +66,7 @@ class AppConfig(BaseSettings):
 
     xai_api_key: str = Field(
         default="",
+        repr=False,
         validation_alias=AliasChoices("XAI_API_KEY", "SYMSIGHT_XAI_API_KEY", "xai_api_key"),
     )
     model: str = Field(default=DEFAULT_MODEL, validation_alias=AliasChoices("SYMSIGHT_MODEL", "model"))

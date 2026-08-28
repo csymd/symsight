@@ -470,7 +470,13 @@ fn set_status_py(path: &str, status: &str) -> PyResult<()> {
 fn unique_draft_path_py(drafts_dir: &str, stem: &str) -> PyResult<String> {
     unique_draft_path(Path::new(drafts_dir), stem)
         .map(|p| p.display().to_string())
-        .map_err(map_io)
+        .map_err(|err| {
+            if err.kind() == std::io::ErrorKind::InvalidInput {
+                PyValueError::new_err(err.to_string())
+            } else {
+                map_io(err)
+            }
+        })
 }
 
 #[pyfunction]

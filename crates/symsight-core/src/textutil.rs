@@ -58,6 +58,17 @@ pub fn char_count(text: &str) -> usize {
     text.chars().count()
 }
 
+/// True when `name` is a single relative path segment (no `/`, `..`, or drive).
+pub fn is_safe_path_component(name: &str) -> bool {
+    if name.is_empty() || name == "." || name == ".." {
+        return false;
+    }
+    if name.contains('/') || name.contains('\\') || name.contains('\0') || name.contains(':') {
+        return false;
+    }
+    true
+}
+
 pub fn slugify(text: &str, max_len: usize) -> String {
     let lower = text.to_lowercase();
     let trimmed = lower.trim();
