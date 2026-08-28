@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scripts/bump-version.sh` for lockstep Cargo workspace version bumps
-- Dependabot config for cargo, uv/pip, and GitHub Actions
 - `scripts/apply-github-rulesets.py` to install the family branch/tag rulesets once the repo is public
 
 ### Changed
