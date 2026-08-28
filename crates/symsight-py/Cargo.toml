@@ -9,6 +9,8 @@ repository.workspace = true
 homepage.workspace = true
 description = "Python bindings for the symsight insight generator"
 
+publish = false
+
 [lib]
 name = "_native"
 crate-type = ["cdylib"]
